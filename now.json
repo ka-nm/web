@@ -1,5 +1,10 @@
 {
   "version": 2,
+  "env": {
+    "AWS_REGION": "@aws_region",
+    "AWS_KEY": "@aws_key",
+    "AWS_SECRET": "@aws_secret"
+  },
   "builds": [
     {
       "src": "index.html",
