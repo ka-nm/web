@@ -1,23 +1,5 @@
 {
-  "name": "digipiggy-web-device",
-  "version": "0.0.1",
-  "description": "",
-  "main": "index.js",
   "dependencies": {
     "aws-sdk": "^2.359.0"
-  },
-  "devDependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/digipiggy/web.git"
-  },
-  "author": "",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/digipiggy/web/issues"
-  },
-  "homepage": "https://github.com/digipiggy/web#readme"
+  }
 }

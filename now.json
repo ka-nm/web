@@ -1,7 +1,7 @@
 {
   "version": 2,
   "env": {
-    "AWS_REGION": "@aws_region",
+    "AWS_REG": "@aws_region",
     "AWS_KEY": "@aws_key",
     "AWS_SECRET": "@aws_secret"
   },
@@ -11,7 +11,7 @@
       "use": "@now/static"
     },
     {
-      "src": "api/device/index.js",
+      "src": "api/*/index.js",
       "use": "@now/node"
     }
   ]

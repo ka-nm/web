@@ -3,7 +3,7 @@ const DynamoDb = require('aws-sdk/clients/dynamodb');
 
 const db = new DynamoDb({
   apiVersion: '2012-08-10',
-  region: process.env.AWS_REGION,
+  region: process.env.AWS_REG,
   credentials: {
     accessKeyId: process.env.AWS_KEY,
     secretAccessKey: process.env.AWS_SECRET
