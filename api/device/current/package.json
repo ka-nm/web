@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "aws-sdk": "2.359.0",
+    "@aws/dynamodb-auto-marshaller": "0.7.1"
+  }
+}

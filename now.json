@@ -3,7 +3,10 @@
   "env": {
     "AWS_REG": "@aws_region",
     "AWS_KEY": "@aws_key",
-    "AWS_SECRET": "@aws_secret"
+    "AWS_SECRET": "@aws_secret",
+    "WEBHOOK_ID": "@webhook_id",
+    "PARTICLE_CLIENT_ID": "@particle_client_id",
+    "PARTICLE_CLIENT_SECRET": "@particle_client_secret"
   },
   "builds": [
     {
@@ -11,8 +14,16 @@
       "use": "@now/static"
     },
     {
-      "src": "api/*/index.js",
+      "src": "api/**/index.js",
+      "use": "@now/node"
+    },
+    {
+      "src": "webhooks/**/index.js",
       "use": "@now/node"
     }
+  ],
+  "alias": [
+    "digipiggybank.com",
+    "www.digipiggybank.com"
   ]
 }

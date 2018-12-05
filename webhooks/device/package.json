@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "promise-throttle": "1.0.0",
+    "co-body": "6.0.0",
+    "axios": "0.18.0",
+    "aws-sdk": "2.359.0",
+    "@aws/dynamodb-auto-marshaller": "0.7.1"
+  }
+}
