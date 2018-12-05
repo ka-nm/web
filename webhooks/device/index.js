@@ -1,3 +1,4 @@
+const PromiseThrottle = require('promise-throttle');
 const parseBody = require('co-body');
 const axios = require('axios');
 const querystring = require('querystring');
@@ -16,6 +17,10 @@ const db = new DynamoDb({
 });
 
 // TODO: implement proper logging (e.g. not just to console)
+
+// TODO: API rate limit of approximately 10 calls per second to api.particle.io
+// from each public IP address - need to account for 429s
+
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
     console.error('Invalid HTTP method');
@@ -39,27 +44,26 @@ module.exports = async (req, res) => {
 
     const buckets = await getBucketValues(body.coreid);
     if (!buckets) {
-      console.error('Invalid device: %s', body.deviceId);
+      console.error('Invalid device: %s', body.coreid);
       res.statusCode = 204;
       return res.end();
     }
 
-    console.log('Sending bucket updates: %o', buckets);
+    console.log('%s: sending bucket updates %o', body.coreid, buckets);
     const accessToken = await getAccessToken();
-    const axiosBuckets = axios.create();
-    throttleRequests(axiosBuckets, 100);
-
+    const throttle = new PromiseThrottle({ requestsPerSecond: 4, promiseImplementation: Promise });
     await Promise.all(
-      buckets.map((b, i) => axiosBuckets.post(
-        'https://api.particle.io/v1/devices/events',
-        querystring.stringify({
-          name: `${body.coreid}/update`,
-          data: `${(i + 1)}|${b.value}|${b.promise}`,
-          private: true,
-          ttl: 86400, // 24hrs
-          access_token: accessToken
-        }))
-      ));
+      buckets.map((b, i) => throttle.add(
+        () => axios.post(
+          'https://api.particle.io/v1/devices/events',
+          querystring.stringify({
+            name: `${body.coreid}/update`,
+            data: `${(i + 1)}|${b.value}|${b.promise}`,
+            private: true,
+            ttl: 86400, // 24hrs
+            access_token: accessToken
+          }))
+      )));
   } catch (err) {
     console.error(err);
     res.statusCode = 500;
@@ -68,7 +72,7 @@ module.exports = async (req, res) => {
 
   res.statusCode = 200;
   return res.end('OK');
-}
+};
 
 async function getBucketValues(deviceId) {
   const response = await db.getItem({
@@ -148,29 +152,4 @@ async function updateClientToken(accessToken, refreshToken) {
       expires: Date.now() + 82800 // 23hrs
     })
   }).promise();
-}
-
-function throttleRequests(axiosInstance, delay) {
-  let nextAllowedRequest;
-  axiosInstance.interceptors.request.use(config => {
-    const now = Date.now();
-    if (nextAllowedRequest) {
-      nextAllowedRequest += delay;
-      const requestDelay = nextAllowedRequest - now;
-      if (requestDelay > 0) {
-        return new Promise(resolve => setTimeout(() => resolve(config), requestDelay));
-      }
-    }
-
-    nextAllowedRequest = now;
-    return config;
-  }, error => {
-    // TODO: API rate limit of approximately 10 calls per second to api.particle.io
-    // from each public IP address - need to account for 429s
-    if (error.response.status === 429) {
-      console.error('Request throttled');
-    }
-
-    return Promise.reject(error);
-  });
 }
