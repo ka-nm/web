@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "public": false,
   "env": {
     "AWS_REG": "@aws_region",
     "AWS_KEY": "@aws_key",
@@ -14,16 +15,26 @@
       "use": "@now/static"
     },
     {
-      "src": "api/**/index.js",
+      "src": "device.js",
       "use": "@now/node"
     },
     {
-      "src": "webhooks/**/index.js",
+      "src": "webhooks.js",
       "use": "@now/node"
     }
   ],
   "alias": [
     "digipiggybank.com",
     "www.digipiggybank.com"
+  ],
+  "routes": [
+    {
+      "src": "/api/device/(?<id>[^/]*)",
+      "dest": "/device.js?deviceId=$id"
+    },
+    {
+      "src": "/webhooks/device",
+      "dest": "/webhooks.js"
+    }
   ]
 }
