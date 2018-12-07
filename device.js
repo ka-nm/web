@@ -55,8 +55,8 @@ module.exports = async (req, res) => {
           () => axios.post(
             'https://api.particle.io/v1/devices/events',
             querystring.stringify({
-              name: `${body.coreid}/update`,
-              data: `${(i + 1)}|${(d.promise / d.total).toFixed(2)}|${(d.promise / d.total).toFixed(2)}`,
+              name: `${body.deviceId}/update`,
+              data: `${(i + 1)}|${(d.current / d.total).toFixed(2)}|${(d.promise / d.total).toFixed(2)}`,
               private: true,
               ttl: 86400, // 24hrs
               access_token: accessToken
