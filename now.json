@@ -11,15 +11,15 @@
   },
   "builds": [
     {
-      "src": "index.html",
-      "use": "@now/static"
+      "src": "app/package.json",
+      "use": "@now/static-build"
     },
     {
-      "src": "device.js",
+      "src": "api/device.js",
       "use": "@now/node"
     },
     {
-      "src": "webhooks.js",
+      "src": "api/webhooks.js",
       "use": "@now/node"
     }
   ],
@@ -29,12 +29,28 @@
   ],
   "routes": [
     {
+      "src": "/",
+      "dest": "/app/index.html"
+    },
+    {
+      "src": "/css/(?<file>.*)",
+      "dest": "/app/css/$file"
+    },
+    {
+      "src": "/js/(?<file>.*)",
+      "dest": "/app/js/$file"
+    },
+    {
+      "src": "/img/(?<file>.*)",
+      "dest": "/app/img/$file"
+    },
+    {
       "src": "/api/device/(?<id>[^/]*)",
-      "dest": "/device.js?deviceId=$id"
+      "dest": "/api/device.js?deviceId=$id"
     },
     {
       "src": "/webhooks/device",
-      "dest": "/webhooks.js"
+      "dest": "api/webhooks.js"
     }
   ]
 }

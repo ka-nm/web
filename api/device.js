@@ -23,7 +23,14 @@ const schema = Joi.object().keys({
 module.exports = async (req, res) => {
   try {
     const { query } = parse(req.url, true);
-    if (req.method === 'GET' || req.method === 'PUT') {
+    if (req.method === 'OPTIONS') {
+      res.statusCode = 204;
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'GET,PUT');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+      res.setHeader('Content-Length', '0');
+      res.end();
+    } else if (req.method === 'GET' || req.method === 'PUT') {
       const device = await getDevice(query.deviceId);
       if (!device) {
         res.statusCode = 404;
