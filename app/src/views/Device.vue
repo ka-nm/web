@@ -41,7 +41,7 @@ export default {
       try {
         const response = await this.axios.get(`api/device/${this.deviceId}`);
         this.storeDevice({ deviceId: response.data.deviceId });
-        this.$router.push("home");
+        this.$router.push({ name: "home" });
       } catch (err) {
         console.error(err);
 

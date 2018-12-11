@@ -7,6 +7,7 @@ export default new Vuex.Store({
   state: {
     message: null,
     device: {
+      deviceId: null,
       buckets: [],
       data: []
     }
@@ -27,8 +28,9 @@ export default new Vuex.Store({
     storeDevice({ commit }, device) {
       Vue.ls.set('deviceId', device.deviceId);
       commit('setDevice', {
-        buckets: device && device.buckets ? device.buckets.slice(0) : [],
-        data: device && device.data ? device.data.slice(0) : []
+        deviceId: device.deviceId,
+        buckets: device.buckets.slice(0),
+        data: device.data.slice(0)
       });
     }
   }

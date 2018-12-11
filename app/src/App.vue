@@ -1,7 +1,7 @@
 <template>
   <v-app id="app">
     <v-content>
-      <v-container fluid fill-height>
+      <v-container fluid>
         <v-layout align-center justify-center>
           <v-flex xs12 sm8 md4>
             <v-img :src="require('@/assets/logo.png')" height="128px" contain class="d-block mb-3"></v-img>

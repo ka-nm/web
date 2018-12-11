@@ -31,7 +31,8 @@
           box
           append-outer-icon="add_circle"
           required
-          @click:append-outer="addMoney"
+          @click:append-outer="deposit"
+          :disabled="isBusy"
         ></v-text-field>
       </v-form>
     </v-card-text>
@@ -39,7 +40,7 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapState, mapActions } from "vuex";
 
 export default {
   name: "home",
@@ -57,6 +58,7 @@ export default {
     }
   },
   methods: {
+    ...mapActions(["displayMessage", "storeDevice"]),
     getBucketName(index) {
       return this.device.buckets[index].name;
     },
@@ -68,8 +70,27 @@ export default {
       const bucket = this.device.buckets[index];
       return `rgb(${(bucket.color >> 16) & 255}, ${(bucket.color >> 8) & 255}, ${bucket.color & 255})`;
     },
-    addMoney() {
+    deposit() {
       alert("ahhhhhhhhh yeeaaaaaaaa");
+    }
+  },
+  async mounted() {
+    if (!this.device.deviceId) {
+      this.isBusy = true;
+      try {
+        const response = await this.axios.get(`api/device/${this.deviceId}`);
+        this.storeDevice({ deviceId: response.data.deviceId });
+      } catch (err) {
+        console.error(err);
+
+        if (err.response && err.response.status === 404) {
+          return this.displayMessage("Device not found");
+        }
+
+        this.displayMessage("Failed to retrieve device");
+      } finally {
+        this.isBusy = false;
+      }
     }
   }
 };
