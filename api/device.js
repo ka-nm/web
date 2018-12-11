@@ -90,5 +90,5 @@ async function getDevice(deviceId) {
     Key: { deviceId: { S: deviceId } }
   }).promise();
 
-  return shared.dynamo.marshaller.unmarshallItem(data.Item);
+  return data.Item ? shared.dynamo.marshaller.unmarshallItem(data.Item) : null;
 }

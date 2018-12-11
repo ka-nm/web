@@ -6,8 +6,14 @@ import router from './router'
 import store from './store'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
- 
+import Storage from 'vue-ls'
+
 Vue.use(VueAxios, axios)
+Vue.use(Storage, {
+  namespace: 'digipiggy__',
+  name: 'ls',
+  storage: 'local'
+})
 
 Vue.config.productionTip = false
 

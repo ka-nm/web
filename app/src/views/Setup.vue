@@ -10,11 +10,17 @@
     <v-card-text>
       <h3>Oh hai</h3>
     </v-card-text>
+    <v-card-actions>
+      <v-spacer></v-spacer>
+      <v-btn color="primary">Submit
+        <v-icon right dark>cloud_upload</v-icon>
+      </v-btn>
+    </v-card-actions>
   </v-card>
 </template>
 
 <script>
 export default {
-  name: "bucket"
+  name: "setup"
 };
 </script>
