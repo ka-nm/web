@@ -33,6 +33,14 @@
       "dest": "/app/index.html"
     },
     {
+      "src": "/favicon.ico",
+      "dest": "/app/favicon.ico"
+    },
+    {
+      "src": "/touch-icon-iphone-retina.png",
+      "dest": "/app/touch-icon-iphone-retina.png"
+    },
+    {
       "src": "/css/(?<file>.*)",
       "dest": "/app/css/$file"
     },
