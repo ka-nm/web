@@ -7,43 +7,7 @@
         <v-icon>keyboard_backspace</v-icon>
       </v-btn>
     </v-toolbar>
-    <v-card-text>
-      <v-text-field
-          label="Goal Name:"
-          placeholder="College"
-          box
-          required
-          @click:append-outer="deposit"
-          :disabled="isBusy"
-        ></v-text-field>
-        <v-text-field
-          label="Goal Total:"
-          prefix="$"
-          placeholder="200.00"
-          box
-          required
-          @click:append-outer="deposit"
-          :disabled="isBusy"
-        ></v-text-field>
-        <v-text-field
-          label="Starting savings toward goal:"
-          prefix="$"
-          placeholder="10.00"
-          box
-          required
-          @click:append-outer="deposit"
-          :disabled="isBusy"
-        ></v-text-field>
-        <v-text-field
-          label="Percentage allocated from each deposit:"
-          prefix="%"
-          placeholder="60"
-          box
-          required
-          @click:append-outer="deposit"
-          :disabled="isBusy"
-        ></v-text-field>
-    </v-card-text>
+    <bucket v-model="tempBucket" :busy="isBusy" />
     <v-card-actions>
       <v-spacer></v-spacer>
       <v-btn color="primary">Save New Goal
@@ -54,8 +18,22 @@
 </template>
 
 <script>
+import Bucket from '@/components/Bucket';
+
 export default {
-  name: "setup",
-  props:{}
+  components: {
+    bucket: Bucket
+  },
+  data() {
+    return {
+      tempBucket: {
+        name: "Beer",
+        total: 100,
+        current: 20,
+        percentage: 50
+      },
+      isBusy: false
+    };
+  }
 };
 </script>

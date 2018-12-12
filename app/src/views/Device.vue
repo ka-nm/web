@@ -35,10 +35,10 @@ export default {
     };
   },
   methods: {
-    ...mapActions(["displayMessage", "storeDevice"]),
+    ...mapActions(["displayMessage", "loadDevice"]),
     async onSubmit() {
       this.isBusy = true;
-      if (await this.storeDevice(this.deviceId)) {
+      if (await this.loadDevice(this.deviceId)) {
         this.$router.push({ name: "home" });
       } else {
         this.displayMessage("Failed to retrieve device");

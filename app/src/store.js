@@ -31,17 +31,17 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    initialize({ commit }) {
+    initialize({ dispatch }) {
       const device = Vue.ls.get('device');
       if (device) {
-        commit('setDevice', device);
+        dispatch('loadDevice', device.deviceId);
       }
     },
     displayMessage({ commit }, text) {
       commit('setMessage', text);
       setTimeout(() => commit('setMessage', null), 0);
     },
-    async storeDevice({ commit }, deviceId) {
+    async loadDevice({ commit }, deviceId) {
       try {
         const response = await axios.get(`${apiBaseUrl}/api/device/${deviceId}`);
         Vue.ls.set('device', response.data);
