@@ -27,12 +27,12 @@ const router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
-  const deviceId = Vue.ls.get('deviceId');
+  const device = Vue.ls.get('device');
   if (to.path === '/device') {
-    return deviceId ? next('/') : next();
+    return device ? next('/') : next();
   }
 
-  if (deviceId) {
+  if (device) {
     return next();
   }
 

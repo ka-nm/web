@@ -10,6 +10,7 @@ const schema = Joi.object().keys({
   deviceId: Joi.string().alphanum().required(),
   buckets: Joi.array().length(4).required().items(Joi.object().keys({
     name: Joi.string(),
+    enabled: Joi.boolean(),
     percentage: Joi.number().min(0).max(1).required(),
     color: Joi.number().integer().min(0).max(16777215)
   })),
@@ -23,11 +24,13 @@ const schema = Joi.object().keys({
 module.exports = async (req, res) => {
   try {
     const { query } = parse(req.url, true);
+
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,PUT');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+
     if (req.method === 'OPTIONS') {
       res.statusCode = 204;
-      res.setHeader('Access-Control-Allow-Origin', '*');
-      res.setHeader('Access-Control-Allow-Methods', 'GET,PUT');
-      res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
       res.setHeader('Content-Length', '0');
       res.end();
     } else if (req.method === 'GET' || req.method === 'PUT') {
@@ -39,6 +42,8 @@ module.exports = async (req, res) => {
 
       // GET
       if (req.method === 'GET') {
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('X-Content-Type-Options', 'nosniff');
         return res.end(JSON.stringify(device));
       }
 
@@ -47,7 +52,7 @@ module.exports = async (req, res) => {
       const result = Joi.validate(body, schema);
       if (result.error) {
         res.statusCode = 400;
-        return res.end(JSON.stringify(result.error));
+        return res.end(JSON.stringify(result.error.details.map(d => d.message)));
       }
 
       await shared.dynamo.db.putItem({

@@ -16,7 +16,8 @@
     </v-card-text>
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn color="primary" @click="submit" :disabled="!deviceId || isBusy">Submit
+      <v-btn color="primary" @click="onSubmit" :disabled="!deviceId || isBusy">
+        Submit
         <v-icon right dark>cloud_upload</v-icon>
       </v-btn>
     </v-card-actions>
@@ -27,7 +28,6 @@
 import { mapActions } from "vuex";
 
 export default {
-  name: "device",
   data() {
     return {
       isBusy: false,
@@ -36,23 +36,15 @@ export default {
   },
   methods: {
     ...mapActions(["displayMessage", "storeDevice"]),
-    async submit() {
+    async onSubmit() {
       this.isBusy = true;
-      try {
-        const response = await this.axios.get(`api/device/${this.deviceId}`);
-        this.storeDevice({ deviceId: response.data.deviceId });
+      if (await this.storeDevice(this.deviceId)) {
         this.$router.push({ name: "home" });
-      } catch (err) {
-        console.error(err);
-
-        if (err.response && err.response.status === 404) {
-          return this.displayMessage("Device not found");
-        }
-
+      } else {
         this.displayMessage("Failed to retrieve device");
-      } finally {
-        this.isBusy = false;
       }
+
+      this.isBusy = false;
     }
   }
 };

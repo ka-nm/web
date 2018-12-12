@@ -22,19 +22,18 @@
           </v-progress-circular>
         </v-layout>
       </v-container>
-      <v-form v-model="isValid">
         <v-text-field
-          v-model="amount"
+          v-model="deposit"
           prefix="$"
           label="Deposit"
           mask="#######"
           box
           append-outer-icon="add_circle"
           required
-          @click:append-outer="deposit"
+          @click:append-outer="onDeposit"
+          @keyup.enter="onDeposit"
           :disabled="isBusy"
         ></v-text-field>
-      </v-form>
     </v-card-text>
   </v-card>
 </template>
@@ -48,7 +47,7 @@ export default {
     return {
       isBusy: false,
       isValid: false,
-      amount: 0.0
+      deposit: 0
     };
   },
   computed: {
@@ -58,7 +57,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(["displayMessage", "storeDevice"]),
+    ...mapActions(["displayMessage", "updateBucketTotals"]),
     getBucketName(index) {
       return this.device.buckets[index].name;
     },
@@ -70,27 +69,19 @@ export default {
       const bucket = this.device.buckets[index];
       return `rgb(${(bucket.color >> 16) & 255}, ${(bucket.color >> 8) & 255}, ${bucket.color & 255})`;
     },
-    deposit() {
-      alert("ahhhhhhhhh yeeaaaaaaaa");
-    }
-  },
-  async mounted() {
-    if (!this.device.deviceId) {
+    async onDeposit() {
       this.isBusy = true;
-      try {
-        const response = await this.axios.get(`api/device/${this.deviceId}`);
-        this.storeDevice({ deviceId: response.data.deviceId });
-      } catch (err) {
-        console.error(err);
 
-        if (err.response && err.response.status === 404) {
-          return this.displayMessage("Device not found");
-        }
-
-        this.displayMessage("Failed to retrieve device");
-      } finally {
-        this.isBusy = false;
+      const self = this;
+      const deposits = this.device.buckets.map(b => Math.round(b.percentage * (+self.deposit)));
+      if (!await this.updateBucketTotals(deposits)) {
+        this.displayMessage('Deposit failed');
+      } else {
+        this.deposit = 0;
+        this.displayMessage('Deposit successful');
       }
+      
+      this.isBusy = false;
     }
   }
 };

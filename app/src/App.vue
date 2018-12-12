@@ -4,7 +4,7 @@
       <v-container fluid>
         <v-layout align-center justify-center>
           <v-flex xs12 sm8 md4>
-            <v-img :src="require('@/assets/logo.png')" height="128px" contain class="d-block mb-3"></v-img>
+            <v-img :src="require('@/assets/logo.png')" height="128px" contain class="d-block my-4"></v-img>
             <transition name="component-fade" mode="out-in">
               <router-view/>
             </transition>
@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapState, mapActions } from "vuex";
 
 export default {
   data() {
@@ -54,6 +54,12 @@ export default {
         this.$nextTick(() => (this.notification = true));
       }
     }
+  },
+  methods: {
+    ...mapActions(["initialize"])
+  },
+  created() {
+    this.initialize();
   }
 };
 </script>
