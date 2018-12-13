@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios';
 
-const apiBaseUrl = process.env.NODE_ENV === 'development' ? 'https://web-f6sfhikn4.now.sh' : '';
+const apiBaseUrl = process.env.NODE_ENV === 'development' ? 'https://digipiggybank.com' : '';
 const cloneState = device => {
   return {
     deviceId: device.deviceId,

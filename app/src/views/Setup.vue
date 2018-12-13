@@ -1,13 +1,22 @@
 <template>
   <v-card class="elevation-12">
     <v-toolbar dark color="primary">
-      <v-toolbar-title>Add a Goal</v-toolbar-title>
+      <v-toolbar-title>Goals</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn icon to="/">
         <v-icon>keyboard_backspace</v-icon>
       </v-btn>
     </v-toolbar>
-    <bucket v-model="tempBucket" :busy="isBusy" />
+    <v-card-text class="grey lighten-5">
+      <v-expansion-panel popout>
+        <v-expansion-panel-content v-for="(bucket, i) in buckets" :key="i">
+          <div slot="header">{{ bucket.name }}</div>
+          <v-card>
+            <bucket v-model="buckets[i]" :busy="isBusy"/>
+          </v-card>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
+    </v-card-text>
     <v-card-actions>
       <v-spacer></v-spacer>
       <v-btn color="primary">Save New Goal
@@ -18,7 +27,8 @@
 </template>
 
 <script>
-import Bucket from '@/components/Bucket';
+import { mapState } from "vuex";
+import Bucket from "@/components/Bucket";
 
 export default {
   components: {
@@ -26,14 +36,15 @@ export default {
   },
   data() {
     return {
-      tempBucket: {
-        name: "Beer",
-        total: 100,
-        current: 20,
-        percentage: 50
-      },
-      isBusy: false
+      isBusy: false,
+      buckets: []
     };
+  },
+  computed: {
+    ...mapState(["device"])
+  },
+  mounted() {
+    this.buckets = this.device.buckets.slice(0);
   }
 };
 </script>
