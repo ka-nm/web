@@ -8,18 +8,14 @@
         name="deviceId"
         label="Device"
         type="text"
+        @keyup.enter="onSubmit"
         prepend-icon="memory"
         v-model="deviceId"
       ></v-text-field>
     </v-card-text>
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn
-        color="primary"
-        @click="onSubmit"
-        @keyup.enter="onSubmit"
-        :disabled="!deviceId || isBusy"
-      >Submit
+      <v-btn color="primary" @click="onSubmit" :disabled="!deviceId || isBusy">Submit
         <v-icon right dark>cloud_upload</v-icon>
       </v-btn>
     </v-card-actions>
@@ -43,7 +39,7 @@ export default {
       if (await this.loadDevice(this.deviceId)) {
         this.$router.push({ name: 'home' });
       } else {
-        this.displayMessage('Failed to retrieve device');
+        this.displayMessage({ text: 'Failed to retrieve device', color: 'error' });
       }
 
       this.isBusy = false;

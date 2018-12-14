@@ -95,9 +95,9 @@ export default {
 
       if (await this.updateBucketTotals(deposits)) {
         this.deposit = 0;
-        this.displayMessage('Deposit successful');
+        this.displayMessage({ text: 'Deposit successful', color: 'info' });
       } else {
-        this.displayMessage('Deposit failed');
+        this.displayMessage({ text: 'Deposit failed', color: 'error' });
       }
 
       this.isBusy = false;

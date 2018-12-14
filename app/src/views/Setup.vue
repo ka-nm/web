@@ -72,9 +72,9 @@ export default {
       };
 
       if (await this.storeDevice(device)) {
-        this.displayMessage('Goals updated');
+        this.displayMessage({ text: 'Goals updated', color: 'info' });
       } else {
-        this.displayMessage('Failed to update goals');
+        this.displayMessage({ text: 'Failed to update goals', color: 'error' });
       }
 
       this.isBusy = false;

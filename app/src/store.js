@@ -9,7 +9,10 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    message: null,
+    message: {
+      text: null,
+      color: null
+    },
     device: {
       deviceId: null,
       buckets: [],
@@ -17,8 +20,9 @@ export default new Vuex.Store({
     }
   },
   mutations: {
-    setMessage(state, text) {
-      state.message = text;
+    setMessage(state, options) {
+      state.message.text = options.text;
+      state.message.color = options.color;
     },
     setDevice(state, device) {
       state.device = device;
@@ -32,9 +36,9 @@ export default new Vuex.Store({
         dispatch('loadDevice', device.deviceId);
       }
     },
-    displayMessage({ commit }, text) {
-      commit('setMessage', text);
-      setTimeout(() => commit('setMessage', null), 0);
+    displayMessage({ commit }, options) {
+      commit('setMessage', options);
+      setTimeout(() => commit('setMessage', { text: null, color: null }), 0);
     },
     async loadDevice({ commit }, deviceId) {
       try {

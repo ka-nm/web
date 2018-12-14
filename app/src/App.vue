@@ -14,7 +14,7 @@
     </v-content>
     <v-snackbar v-model="notification" :multi-line="true" :timeout="5000">
       {{ notificationText }}
-      <v-btn flat @click="notification = false">Close</v-btn>
+      <v-btn flat :color="notificationColor" @click="notification = false">Close</v-btn>
     </v-snackbar>
   </v-app>
 </template>
@@ -26,31 +26,37 @@ export default {
   data() {
     return {
       notificationText: '',
+      notificationColor: 'info',
       notificationQueue: [],
       notification: false
     };
   },
   computed: {
     ...mapState({
-      message: state => state.message
+      messageText: state => state.message.text,
+      messageColor: state => state.message.color
     }),
     hasNotificationsPending() {
       return this.notificationQueue.length > 0;
     }
   },
   watch: {
-    message() {
-      if (this.message) {
-        this.notificationQueue.push(this.message);
+    messageText() {
+      if (this.messageText) {
+        this.notificationQueue.push({ text: this.messageText, color: this.messageColor });
         if (!this.notification) {
-          this.notificationText = this.notificationQueue.shift();
+          const options = this.notificationQueue.shift();
+          this.notificationText = options.text;
+          this.notificationColor = options.color;
           this.notification = true;
         }
       }
     },
     notification() {
       if (!this.notification && this.hasNotificationsPending) {
-        this.notificationText = this.notificationQueue.shift();
+        const options = this.notificationQueue.shift();
+        this.notificationText = options.text;
+        this.notificationColor = options.color;
         this.$nextTick(() => (this.notification = true));
       }
     }
