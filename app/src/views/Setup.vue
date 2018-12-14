@@ -9,22 +9,22 @@
     </v-toolbar>
     <v-card-text class="grey lighten-5">
       <v-expansion-panel popout>
-        <v-expansion-panel-content v-for="(bucket, i) in buckets" :key="i">
+        <v-expansion-panel-content v-for="(goal, i) in goals" :key="i">
           <div slot="header">
-            <v-chip color="white" :disabled="true">
-              <v-avatar :color="$color(bucket.color)"></v-avatar>
-              {{ bucket.name }}
+            <v-chip color="white" :disabled="true" :class="(goal.enabled ? 'goal-enabled' : '')">
+              <v-avatar :color="$color(goal.color)"></v-avatar>
+              {{ goal.name }}
             </v-chip>
           </div>
           <v-card>
-            <bucket v-model="buckets[i]" :busy="isBusy"/>
+            <goal v-model="goals[i]" :busy="isBusy"/>
           </v-card>
         </v-expansion-panel-content>
       </v-expansion-panel>
     </v-card-text>
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn color="primary">Save Goals
+      <v-btn color="primary" @click="onSave" :disabled="isBusy">Save Goals
         <v-icon right dark>cloud_upload</v-icon>
       </v-btn>
     </v-card-actions>
@@ -32,28 +32,61 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
-import Bucket from "@/components/Bucket";
+import { mapState, mapActions } from 'vuex';
+import Goal from '@/components/Goal';
 
 export default {
   components: {
-    bucket: Bucket
+    goal: Goal
   },
   data() {
     return {
       isBusy: false,
-      buckets: []
+      goals: []
     };
   },
   computed: {
-    ...mapState(["device"])
+    ...mapState(['device'])
+  },
+  methods: {
+    ...mapActions(['storeDevice', 'displayMessage']),
+    async onSave() {
+      this.isBusy = true;
+      const device = {
+        deviceId: this.device.deviceId,
+        buckets: this.goals.map(b => {
+          return {
+            name: b.name,
+            enabled: b.enabled,
+            color: b.color,
+            percentage: +b.percentage / 100
+          };
+        }),
+        data: this.goals.map(b => {
+          return {
+            total: +b.total,
+            current: +b.current,
+            promise: 0
+          };
+        })
+      };
+
+      if (await this.storeDevice(device)) {
+        this.displayMessage('Goals updated');
+      } else {
+        this.displayMessage('Failed to update goals');
+      }
+
+      this.isBusy = false;
+    }
   },
   mounted() {
     const self = this;
-    this.buckets = this.device.buckets.map((b, i) => {
+    this.goals = this.device.buckets.map((b, i) => {
       return {
         name: b.name,
         color: b.color,
+        enabled: b.enabled,
         percentage: b.percentage * 100,
         total: self.device.data[i].total,
         current: self.device.data[i].current
@@ -64,7 +97,7 @@ export default {
 </script>
 
 <style scoped>
-.theme--light.v-chip--disabled {
+.goal-enabled {
   background: #e0e0e0;
   color: rgba(0, 0, 0, 0.87);
 }

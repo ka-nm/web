@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import { mapState, mapActions } from "vuex";
+import { mapState, mapActions } from 'vuex';
 
 export default {
   data() {
@@ -51,13 +51,13 @@ export default {
     };
   },
   computed: {
-    ...mapState(["device"]),
+    ...mapState(['device']),
     enabledBuckets() {
       return this.device.buckets.filter(b => b.enabled);
     }
   },
   methods: {
-    ...mapActions(["displayMessage", "updateBucketTotals"]),
+    ...mapActions(['displayMessage', 'updateBucketTotals']),
     getBucketName(index) {
       return this.device.buckets[index].name;
     },
@@ -72,14 +72,32 @@ export default {
     async onDeposit() {
       this.isBusy = true;
 
-      const self = this;
-      // TODO: fix this
-      const deposits = this.device.buckets.map(b => Math.round(b.percentage * +self.deposit));
-      if (!(await this.updateBucketTotals(deposits))) {
-        this.displayMessage("Deposit failed");
-      } else {
+      const vm = this;
+      const deposits = [0, 0, 0, 0];
+      let remainder = +this.deposit;
+      do {
+        remainder = this.device.buckets.reduce((r, b, i) => {
+          if (b.enabled && vm.device.data[i].total > vm.device.data[i].current + deposits[i]) {
+            const deposit = Math.round(b.percentage * remainder);
+            const runningTotal = vm.device.data[i].current + deposits[i];
+            if (runningTotal + deposit > vm.device.data[i].total) {
+              const diff = vm.device.data[i].total - runningTotal;
+              deposits[i] += diff;
+              r += deposit - diff;
+            } else {
+              deposits[i] += deposit;
+            }
+          }
+
+          return r;
+        }, 0);
+      } while (remainder > 0 && !this.device.data.every((d, i) => d.total === d.current + deposits[i]));
+
+      if (await this.updateBucketTotals(deposits)) {
         this.deposit = 0;
-        this.displayMessage("Deposit successful");
+        this.displayMessage('Deposit successful');
+      } else {
+        this.displayMessage('Deposit failed');
       }
 
       this.isBusy = false;

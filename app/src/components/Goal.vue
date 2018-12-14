@@ -9,7 +9,7 @@
       :disabled="busy"
     ></v-text-field>
     <v-text-field
-      label="Goal Total:"
+      label="Goal total:"
       prefix="$"
       placeholder="200.00"
       box
@@ -31,10 +31,12 @@
       prefix="%"
       placeholder="60"
       box
+      mask="###"
       required
       v-model="value.percentage"
       :disabled="busy"
     ></v-text-field>
+    <v-switch label="Enabled" v-model="value.enabled" :disabled="busy"></v-switch>
   </v-card-text>
 </template>
 

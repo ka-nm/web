@@ -20,12 +20,12 @@
 </template>
 
 <script>
-import { mapState, mapActions } from "vuex";
+import { mapState, mapActions } from 'vuex';
 
 export default {
   data() {
     return {
-      notificationText: "",
+      notificationText: '',
       notificationQueue: [],
       notification: false
     };
@@ -56,7 +56,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(["initialize"])
+    ...mapActions(['initialize'])
   },
   created() {
     this.initialize();
