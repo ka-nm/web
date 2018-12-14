@@ -54,19 +54,19 @@ export default {
       this.isBusy = true;
       const device = {
         deviceId: this.device.deviceId,
-        buckets: this.goals.map(b => {
+        buckets: this.goals.map(g => {
           return {
-            name: b.name,
-            enabled: b.enabled,
-            color: b.color,
-            percentage: +b.percentage / 100
+            name: g.name,
+            enabled: g.enabled,
+            color: g.color,
+            percentage: +g.percentage / 100
           };
         }),
-        data: this.goals.map(b => {
+        data: this.goals.map(g => {
           return {
-            total: +b.total,
-            current: +b.current,
-            promise: 0
+            total: +g.total,
+            current: +g.current,
+            promise: g.promise
           };
         })
       };
@@ -89,7 +89,8 @@ export default {
         enabled: b.enabled,
         percentage: b.percentage * 100,
         total: self.device.data[i].total,
-        current: self.device.data[i].current
+        current: self.device.data[i].current,
+        promise: self.device.data[i].promise
       };
     });
   }

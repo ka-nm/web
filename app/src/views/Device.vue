@@ -8,6 +8,8 @@
         name="deviceId"
         label="Device"
         type="text"
+        box
+        autofocus
         @keyup.enter="onSubmit"
         prepend-icon="memory"
         v-model="deviceId"

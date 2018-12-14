@@ -29,8 +29,9 @@
         label="Deposit"
         mask="#######"
         box
+        autofocus
+        placeholder="20"
         append-outer-icon="add_circle"
-        required
         @click:append-outer="onDeposit"
         @keyup.enter="onDeposit"
         :disabled="isBusy"
@@ -47,7 +48,7 @@ export default {
     return {
       isBusy: false,
       isValid: false,
-      deposit: 0
+      deposit: null
     };
   },
   computed: {
@@ -70,6 +71,10 @@ export default {
       return this.$color(bucket.color);
     },
     async onDeposit() {
+      if (+this.deposit === 0) {
+        return this.displayMessage({ text: 'Please enter an amount to deposit', color: 'info' });
+      }
+
       this.isBusy = true;
 
       const vm = this;
