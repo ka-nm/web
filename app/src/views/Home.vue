@@ -67,17 +67,14 @@ export default {
     },
     getBucketColor(index) {
       const bucket = this.device.buckets[index];
-      return `rgb(${(bucket.color >> 16) & 255}, ${(bucket.color >> 8) &
-        255}, ${bucket.color & 255})`;
+      return this.$color(bucket.color);
     },
     async onDeposit() {
       this.isBusy = true;
 
       const self = this;
       // TODO: fix this
-      const deposits = this.device.buckets.map(b =>
-        Math.round(b.percentage * +self.deposit)
-      );
+      const deposits = this.device.buckets.map(b => Math.round(b.percentage * +self.deposit));
       if (!(await this.updateBucketTotals(deposits))) {
         this.displayMessage("Deposit failed");
       } else {

@@ -1,7 +1,7 @@
 <template>
   <v-card-text>
     <v-text-field
-      label="Goal Name:"
+      label="Name:"
       placeholder="College"
       box
       required
@@ -18,7 +18,7 @@
       :disabled="busy"
     ></v-text-field>
     <v-text-field
-      label="Starting savings toward goal:"
+      label="Current amount saved:"
       prefix="$"
       placeholder="10.00"
       box

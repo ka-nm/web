@@ -10,7 +10,12 @@
     <v-card-text class="grey lighten-5">
       <v-expansion-panel popout>
         <v-expansion-panel-content v-for="(bucket, i) in buckets" :key="i">
-          <div slot="header">{{ bucket.name }}</div>
+          <div slot="header">
+            <v-chip color="white" :disabled="true">
+              <v-avatar :color="$color(bucket.color)"></v-avatar>
+              {{ bucket.name }}
+            </v-chip>
+          </div>
           <v-card>
             <bucket v-model="buckets[i]" :busy="isBusy"/>
           </v-card>
@@ -19,7 +24,7 @@
     </v-card-text>
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn color="primary">Save New Goal
+      <v-btn color="primary">Save Goals
         <v-icon right dark>cloud_upload</v-icon>
       </v-btn>
     </v-card-actions>
@@ -44,7 +49,23 @@ export default {
     ...mapState(["device"])
   },
   mounted() {
-    this.buckets = this.device.buckets.slice(0);
+    const self = this;
+    this.buckets = this.device.buckets.map((b, i) => {
+      return {
+        name: b.name,
+        color: b.color,
+        percentage: b.percentage * 100,
+        total: self.device.data[i].total,
+        current: self.device.data[i].current
+      };
+    });
   }
 };
 </script>
+
+<style scoped>
+.theme--light.v-chip--disabled {
+  background: #e0e0e0;
+  color: rgba(0, 0, 0, 0.87);
+}
+</style>
