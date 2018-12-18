@@ -8,23 +8,32 @@
       </v-btn>
     </v-toolbar>
     <v-card-text class="grey lighten-5">
+      <v-alert
+        class="mb-3"
+        :value="!totalPercentageValid"
+        type="warning"
+      >Total percentage does not add up to 100.</v-alert>
       <v-expansion-panel popout>
         <v-expansion-panel-content v-for="(goal, i) in goals" :key="i">
           <div slot="header">
             <v-chip color="white" :disabled="true" :class="(goal.enabled ? 'goal-enabled' : '')">
-              <v-avatar :color="$color(goal.color)"></v-avatar>
+              <v-avatar :color="goal.enabled ? $color(goal.color) : 'grey'"></v-avatar>
               {{ goal.name }}
             </v-chip>
           </div>
           <v-card>
-            <goal v-model="goals[i]" :busy="isBusy"/>
+            <goal v-model="goals[i]" :busy="busy" @valid="onValid(i, $event)"/>
           </v-card>
         </v-expansion-panel-content>
       </v-expansion-panel>
     </v-card-text>
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn color="primary" @click="onSave" :disabled="isBusy">Save Goals
+      <v-btn
+        color="primary"
+        @click="onSave"
+        :disabled="!totalPercentageValid || !allGoalsValid || busy"
+      >Save Goals
         <v-icon right dark>cloud_upload</v-icon>
       </v-btn>
     </v-card-actions>
@@ -41,7 +50,10 @@ export default {
   },
   data() {
     return {
-      isBusy: false,
+      allGoalsValid: true,
+      totalPercentageValid: true,
+      valid: [true, true, true, true],
+      busy: false,
       goals: []
     };
   },
@@ -50,8 +62,27 @@ export default {
   },
   methods: {
     ...mapActions(['storeDevice', 'displayMessage']),
+    onValid(index, isValid) {
+      this.valid[index] = isValid;
+      this.allGoalsValid = this.valid.every(x => x);
+    },
+    onPercentage() {
+      const total = this.goals.reduce((sum, goal) => +goal.percentage + sum, 0);
+      this.totalPercentageValid = total === 100;
+    },
+    onEnabled(index, isEnabled) {
+      if (isEnabled) {
+        for (let i = index; i >= 0; i--) {
+          this.goals[i].enabled = true;
+        }
+      } else {
+        for (let i = index; i < 4; i++) {
+          this.goals[i].enabled = false;
+        }
+      }
+    },
     async onSave() {
-      this.isBusy = true;
+      this.busy = true;
       const device = {
         deviceId: this.device.deviceId,
         buckets: this.goals.map(g => {
@@ -77,22 +108,27 @@ export default {
         this.displayMessage({ text: 'Failed to update goals', color: 'error' });
       }
 
-      this.isBusy = false;
+      this.busy = false;
     }
   },
   mounted() {
-    const self = this;
+    const vm = this;
     this.goals = this.device.buckets.map((b, i) => {
       return {
         name: b.name,
         color: b.color,
         enabled: b.enabled,
         percentage: b.percentage * 100,
-        total: self.device.data[i].total,
-        current: self.device.data[i].current,
-        promise: self.device.data[i].promise
+        total: vm.device.data[i].total,
+        current: vm.device.data[i].current,
+        promise: vm.device.data[i].promise
       };
     });
+
+    for (let index in this.goals) {
+      this.$watch(['goals', index, 'percentage'].join('.'), this.onPercentage);
+      this.$watch(['goals', index, 'enabled'].join('.'), isEnabled => this.onEnabled(index, isEnabled));
+    }
   }
 };
 </script>

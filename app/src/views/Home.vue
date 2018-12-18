@@ -34,7 +34,7 @@
         append-outer-icon="add_circle"
         @click:append-outer="onDeposit"
         @keyup.enter="onDeposit"
-        :disabled="isBusy"
+        :disabled="busy"
       ></v-text-field>
     </v-card-text>
   </v-card>
@@ -46,7 +46,7 @@ import { mapState, mapActions } from 'vuex';
 export default {
   data() {
     return {
-      isBusy: false,
+      busy: false,
       isValid: false,
       deposit: null
     };
@@ -75,7 +75,7 @@ export default {
         return this.displayMessage({ text: 'Please enter an amount to deposit', color: 'info' });
       }
 
-      this.isBusy = true;
+      this.busy = true;
 
       const vm = this;
       const deposits = [0, 0, 0, 0];
@@ -105,7 +105,7 @@ export default {
         this.displayMessage({ text: 'Deposit failed', color: 'error' });
       }
 
-      this.isBusy = false;
+      this.busy = false;
     }
   }
 };

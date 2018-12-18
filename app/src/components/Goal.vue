@@ -1,55 +1,60 @@
 <template>
   <v-card-text>
-    <v-text-field
-      label="Name:"
-      placeholder="College"
-      box
-      counter="20"
-      clearable
-      required
-      v-model="value.name"
-      :disabled="busy"
-    ></v-text-field>
-    <v-text-field
-      label="Goal total:"
-      prefix="$"
-      placeholder="200"
-      box
-      mask="#######"
-      required
-      v-model="value.total"
-      :disabled="busy"
-    ></v-text-field>
-    <v-text-field
-      label="Current amount saved:"
-      prefix="$"
-      placeholder="10"
-      box
-      mask="#######"
-      required
-      v-model="value.current"
-      :disabled="busy"
-    ></v-text-field>
-    <v-text-field
-      label="Amount promised:"
-      prefix="$"
-      placeholder="50"
-      box
-      mask="#######"
-      required
-      v-model="value.promise"
-      :disabled="busy"
-    ></v-text-field>
-    <v-text-field
-      label="Percentage allocated from each deposit:"
-      prefix="%"
-      placeholder="40"
-      box
-      mask="###"
-      required
-      v-model="value.percentage"
-      :disabled="busy"
-    ></v-text-field>
+    <v-form ref="form" v-model="valid" lazy-validation>
+      <v-text-field
+        label="Name:"
+        :rules="nameRules"
+        placeholder="College"
+        box
+        counter="20"
+        clearable
+        required
+        v-model="value.name"
+        :disabled="busy"
+      ></v-text-field>
+      <v-text-field
+        label="Goal total:"
+        prefix="$"
+        placeholder="200"
+        box
+        mask="#######"
+        required
+        v-model="value.total"
+        :disabled="busy"
+      ></v-text-field>
+      <v-text-field
+        label="Current amount saved:"
+        :rules="currentRules"
+        prefix="$"
+        placeholder="10"
+        box
+        mask="#######"
+        required
+        v-model="value.current"
+        :disabled="busy"
+      ></v-text-field>
+      <v-text-field
+        label="Amount promised:"
+        :rules="promiseRules"
+        prefix="$"
+        placeholder="50"
+        box
+        mask="#######"
+        required
+        v-model="value.promise"
+        :disabled="busy"
+      ></v-text-field>
+      <v-text-field
+        label="Percentage allocated from each deposit:"
+        prefix="%"
+        placeholder="40"
+        box
+        mask="###"
+        required
+        v-model="value.percentage"
+        :disabled="busy"
+      ></v-text-field>
+    </v-form>
     <v-switch label="Enabled" v-model="value.enabled" :disabled="busy"></v-switch>
   </v-card-text>
 </template>
@@ -59,6 +64,19 @@ export default {
   props: {
     value: Object,
     busy: Boolean
+  },
+  data() {
+    return {
+      valid: true,
+      nameRules: [v => !!v || 'Name is required', v => (v && v.length <= 20) || 'Name must be less than 20 characters'],
+      currentRules: [() => +this.value.current <= +this.value.total || 'Current amount cannot exceed total'],
+      promiseRules: [() => +this.value.promise < +this.value.total || 'Promise amount cannot match or exceed total']
+    };
+  },
+  watch: {
+    valid() {
+      this.$emit('valid', this.valid);
+    }
   }
 };
 </script>

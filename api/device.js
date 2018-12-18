@@ -60,15 +60,23 @@ module.exports = async (req, res) => {
         Item: shared.dynamo.marshaller.marshallItem(body)
       }).promise();
 
+      const buckets = body.data.map(d => {
+        return {
+          value: (d.current / d.total).toFixed(2),
+          promise: (d.promise / d.total).toFixed(2)
+        };
+      });
+
+      console.log('%s: sending bucket updates %o', query.deviceId, buckets);
       const accessToken = await shared.auth.getAccessToken();
       const throttle = new PromiseThrottle({ requestsPerSecond: 2, promiseImplementation: Promise });
       await Promise.all(
-        body.data.map((d, i) => throttle.add(
+        buckets.map((b, i) => throttle.add(
           () => axios.post(
             'https://api.particle.io/v1/devices/events',
             querystring.stringify({
-              name: `${body.deviceId}/update`,
-              data: `${(i + 1)}|${(d.current / d.total).toFixed(2)}|${(d.promise / d.total).toFixed(2)}`,
+              name: `${query.deviceId}/update`,
+              data: `${(i + 1)}|${b.value}|${b.promise}`,
               private: true,
               ttl: 86400, // 24hrs
               access_token: accessToken
