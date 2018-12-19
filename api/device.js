@@ -70,18 +70,34 @@ module.exports = async (req, res) => {
       console.log('%s: sending bucket updates %o', query.deviceId, buckets);
       const accessToken = await shared.auth.getAccessToken();
       const throttle = new PromiseThrottle({ requestsPerSecond: 2, promiseImplementation: Promise });
-      await Promise.all(
-        buckets.map((b, i) => throttle.add(
-          () => axios.post(
-            'https://api.particle.io/v1/devices/events',
-            querystring.stringify({
-              name: `${query.deviceId}/update`,
-              data: `${(i + 1)}|${b.value}|${b.promise}`,
-              private: true,
-              ttl: 86400, // 24hrs
-              access_token: accessToken
-            }))
-        )));
+
+      const requests = [];
+      const toggleData = body.buckets.map(b => b.enabled ? 1 : 0).join('|');
+      requests.push(throttle.add(
+        () => axios.post(
+          'https://api.particle.io/v1/devices/events',
+          querystring.stringify({
+            name: `${query.deviceId}/toggle`,
+            data: toggleData,
+            private: true,
+            ttl: 86400, // 24hrs
+            access_token: accessToken
+          }))
+      ));
+
+      requests.push(...buckets.map((b, i) => throttle.add(
+        () => axios.post(
+          'https://api.particle.io/v1/devices/events',
+          querystring.stringify({
+            name: `${query.deviceId}/update`,
+            data: `${(i + 1)}|${b.value}|${b.promise}`,
+            private: true,
+            ttl: 86400, // 24hrs
+            access_token: accessToken
+          }))
+      )));
+
+      await Promise.all(requests);
 
       res.statusCode = 204;
       return res.end();

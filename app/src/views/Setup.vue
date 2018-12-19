@@ -70,17 +70,6 @@ export default {
       const total = this.goals.reduce((sum, goal) => +goal.percentage + sum, 0);
       this.totalPercentageValid = total === 100;
     },
-    onEnabled(index, isEnabled) {
-      if (isEnabled) {
-        for (let i = index; i >= 0; i--) {
-          this.goals[i].enabled = true;
-        }
-      } else {
-        for (let i = index; i < 4; i++) {
-          this.goals[i].enabled = false;
-        }
-      }
-    },
     async onSave() {
       this.busy = true;
       const device = {
@@ -127,7 +116,6 @@ export default {
 
     for (let index in this.goals) {
       this.$watch(['goals', index, 'percentage'].join('.'), this.onPercentage);
-      this.$watch(['goals', index, 'enabled'].join('.'), isEnabled => this.onEnabled(index, isEnabled));
     }
   }
 };
