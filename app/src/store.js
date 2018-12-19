@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios';
 
-const apiBaseUrl = process.env.NODE_ENV === 'development' ? 'https://digipiggybank.com' : '';
+const apiBaseUrl = process.env.NODE_ENV === 'development' ? 'https://web-cuywa2q2n.now.sh' : '';
 const cloneDevice = device => JSON.parse(JSON.stringify(device));
 
 Vue.use(Vuex)
@@ -15,8 +15,7 @@ export default new Vuex.Store({
     },
     device: {
       deviceId: null,
-      buckets: [],
-      data: []
+      goals: []
     }
   },
   mutations: {
@@ -62,9 +61,9 @@ export default new Vuex.Store({
         return false;
       }
     },
-    async updateBucketTotals({ state, commit }, deposits) {
+    async updateGoalTotals({ state, commit }, deposits) {
       const updatedDevice = cloneDevice(state.device);
-      updatedDevice.data.forEach((d, i) => d.current += deposits[i]);
+      updatedDevice.goals.forEach((d, i) => d.current += deposits[i]);
 
       try {
         await axios.put(`${apiBaseUrl}/api/device/${updatedDevice.deviceId}`, updatedDevice);

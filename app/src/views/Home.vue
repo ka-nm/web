@@ -10,16 +10,16 @@
     <v-card-text>
       <v-container fluid>
         <v-layout align-center justify-center row fill-height>
-          <div v-for="(bucket, i) in enabledBuckets" :key="i" class="text-xs-center mx-2">
+          <div v-for="(goal, i) in enabledGoals" :key="i" class="text-xs-center mx-2">
             <v-progress-circular
               class="align-center"
               :rotate="90"
               :size="60"
               :width="10"
-              :value="getBucketValue(i)"
-              :color="getBucketColor(i)"
+              :value="getGoalValue(i)"
+              :color="getGoalColor(i)"
             ></v-progress-circular>
-            <p class="mt-1" style="max-width: 60px;">{{ bucket.name }}</p>
+            <p class="mt-1" style="max-width: 60px;">{{ goal.name }}</p>
           </div>
         </v-layout>
       </v-container>
@@ -47,28 +47,27 @@ export default {
   data() {
     return {
       busy: false,
-      isValid: false,
       deposit: null
     };
   },
   computed: {
     ...mapState(['device']),
-    enabledBuckets() {
-      return this.device.buckets.filter(b => b.enabled);
+    enabledGoals() {
+      return this.device.goals.filter(g => g.enabled);
     }
   },
   methods: {
-    ...mapActions(['displayMessage', 'updateBucketTotals']),
-    getBucketName(index) {
-      return this.device.buckets[index].name;
+    ...mapActions(['displayMessage', 'updateGoalTotals']),
+    getGoalName(index) {
+      return this.device.goals[index].name;
     },
-    getBucketValue(index) {
-      const data = this.device.data[index];
+    getGoalValue(index) {
+      const data = this.device.goals[index];
       return (data.current / data.total) * 100;
     },
-    getBucketColor(index) {
-      const bucket = this.device.buckets[index];
-      return this.$color(bucket.color);
+    getGoalColor(index) {
+      const goals = this.device.goals[index];
+      return this.$color(goals.color);
     },
     async onDeposit() {
       if (+this.deposit === 0) {
@@ -77,16 +76,15 @@ export default {
 
       this.busy = true;
 
-      const vm = this;
       const deposits = [0, 0, 0, 0];
       let remainder = +this.deposit;
       do {
-        remainder = this.device.buckets.reduce((r, b, i) => {
-          if (b.enabled && vm.device.data[i].total > vm.device.data[i].current + deposits[i]) {
-            const deposit = Math.round(b.percentage * remainder);
-            const runningTotal = vm.device.data[i].current + deposits[i];
-            if (runningTotal + deposit > vm.device.data[i].total) {
-              const diff = vm.device.data[i].total - runningTotal;
+        remainder = this.device.goals.reduce((r, g, i) => {
+          if (g.enabled && g.total > g.current + deposits[i]) {
+            const deposit = Math.round(g.percentage * remainder);
+            const runningTotal = g.current + deposits[i];
+            if (runningTotal + deposit > g.total) {
+              const diff = g.total - runningTotal;
               deposits[i] += diff;
               r += deposit - diff;
             } else {
@@ -96,9 +94,9 @@ export default {
 
           return r;
         }, 0);
-      } while (remainder > 0 && !this.device.data.every((d, i) => d.total === d.current + deposits[i]));
+      } while (remainder > 0 && !this.device.goals.every((d, i) => d.total === d.current + deposits[i]));
 
-      if (await this.updateBucketTotals(deposits)) {
+      if (await this.updateGoalTotals(deposits)) {
         this.deposit = 0;
         this.displayMessage({ text: 'Deposit successful', color: 'info' });
       } else {

@@ -8,13 +8,11 @@ const shared = require('./shared');
 
 const schema = Joi.object().keys({
   deviceId: Joi.string().alphanum().required(),
-  buckets: Joi.array().length(4).required().items(Joi.object().keys({
+  goals: Joi.array().length(4).required().items(Joi.object().keys({
     name: Joi.string(),
     enabled: Joi.boolean(),
     percentage: Joi.number().min(0).max(1).required(),
-    color: Joi.number().integer().min(0).max(16777215)
-  })),
-  data: Joi.array().length(4).required().items(Joi.object().keys({
+    color: Joi.number().integer().min(0).max(16777215),
     total: Joi.number().greater(0).required(),
     current: Joi.number().min(0).max(Joi.ref('total')),
     promise: Joi.number().min(0).max(Joi.ref('total'))
@@ -60,19 +58,19 @@ module.exports = async (req, res) => {
         Item: shared.dynamo.marshaller.marshallItem(body)
       }).promise();
 
-      const buckets = body.data.map(d => {
+      const goals = body.goals.map(g => {
         return {
-          value: (d.current / d.total).toFixed(2),
-          promise: (d.promise / d.total).toFixed(2)
+          value: (g.current / g.total).toFixed(2),
+          promise: (g.promise / g.total).toFixed(2)
         };
       });
 
-      console.log('%s: sending bucket updates %o', query.deviceId, buckets);
+      console.log('%s: sending goal updates %o', query.deviceId, goals);
       const accessToken = await shared.auth.getAccessToken();
       const throttle = new PromiseThrottle({ requestsPerSecond: 2, promiseImplementation: Promise });
 
       const requests = [];
-      const toggleData = body.buckets.map(b => b.enabled ? 1 : 0).join('|');
+      const toggleData = body.goals.map(b => b.enabled ? 1 : 0).join('|');
       requests.push(throttle.add(
         () => axios.post(
           'https://api.particle.io/v1/devices/events',
@@ -85,7 +83,7 @@ module.exports = async (req, res) => {
           }))
       ));
 
-      requests.push(...buckets.map((b, i) => throttle.add(
+      requests.push(...goals.map((b, i) => throttle.add(
         () => axios.post(
           'https://api.particle.io/v1/devices/events',
           querystring.stringify({

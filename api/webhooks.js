@@ -25,18 +25,18 @@ module.exports = async (req, res) => {
       return res.end();
     }
 
-    const buckets = await getBucketValues(body.coreid);
-    if (!buckets) {
+    const goals = await getGoalValues(body.coreid);
+    if (!goals) {
       console.error('Invalid device: %s', body.coreid);
       res.statusCode = 204;
       return res.end();
     }
 
-    console.log('%s: sending bucket updates %o', body.coreid, buckets);
+    console.log('%s: sending goal updates %o', body.coreid, goals);
     const accessToken = await shared.auth.getAccessToken();
     const throttle = new PromiseThrottle({ requestsPerSecond: 2, promiseImplementation: Promise });
     await Promise.all(
-      buckets.map((b, i) => throttle.add(
+      goals.map((b, i) => throttle.add(
         () => axios.post(
           'https://api.particle.io/v1/devices/events',
           querystring.stringify({
@@ -57,7 +57,7 @@ module.exports = async (req, res) => {
   return res.end('OK');
 };
 
-async function getBucketValues(deviceId) {
+async function getGoalValues(deviceId) {
   const response = await shared.dynamo.db.getItem({
     TableName: 'devices',
     Key: { deviceId: { S: deviceId } }
@@ -68,7 +68,7 @@ async function getBucketValues(deviceId) {
   }
 
   const device = shared.dynamo.marshaller.unmarshallItem(response.Item);
-  return device.data.map(d => {
+  return device.goals.map(d => {
     return {
       value: (d.current / d.total).toFixed(2),
       promise: (d.promise / d.total).toFixed(2)

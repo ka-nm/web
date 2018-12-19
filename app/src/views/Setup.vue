@@ -74,19 +74,15 @@ export default {
       this.busy = true;
       const device = {
         deviceId: this.device.deviceId,
-        buckets: this.goals.map(g => {
+        goals: this.goals.map(g => {
           return {
             name: g.name,
             enabled: g.enabled,
-            color: g.color,
-            percentage: +g.percentage / 100
-          };
-        }),
-        data: this.goals.map(g => {
-          return {
+            color: +g.color,
+            percentage: +g.percentage / 100,
             total: +g.total,
             current: +g.current,
-            promise: g.promise
+            promise: +g.promise
           };
         })
       };
@@ -101,16 +97,15 @@ export default {
     }
   },
   mounted() {
-    const vm = this;
-    this.goals = this.device.buckets.map((b, i) => {
+    this.goals = this.device.goals.map(g => {
       return {
-        name: b.name,
-        color: b.color,
-        enabled: b.enabled,
-        percentage: b.percentage * 100,
-        total: vm.device.data[i].total,
-        current: vm.device.data[i].current,
-        promise: vm.device.data[i].promise
+        name: g.name,
+        color: g.color,
+        enabled: g.enabled,
+        percentage: g.percentage * 100,
+        total: g.total,
+        current: g.current,
+        promise: g.promise
       };
     });
 
