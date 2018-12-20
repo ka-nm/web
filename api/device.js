@@ -56,7 +56,7 @@ module.exports = async (req, res) => {
       }).promise();
 
       const accessToken = await shared.auth.getAccessToken();
-      shared.device.update(accessToken, requestBody);
+      await shared.device.update(accessToken, requestBody);
 
       res.statusCode = 204;
       return res.end();

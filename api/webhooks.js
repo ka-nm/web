@@ -30,7 +30,7 @@ module.exports = async (req, res) => {
     }
 
     const accessToken = await shared.auth.getAccessToken();
-    shared.device.update(accessToken, device);
+    await shared.device.update(accessToken, device);
   } catch (err) {
     console.error(err);
     res.statusCode = 500;
