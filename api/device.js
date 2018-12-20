@@ -1,9 +1,6 @@
 const { parse } = require('url');
-const querystring = require('querystring');
 const parseBody = require('co-body');
-const PromiseThrottle = require('promise-throttle');
 const Joi = require('joi');
-const axios = require('axios');
 const shared = require('./shared');
 
 const schema = Joi.object().keys({
@@ -32,7 +29,7 @@ module.exports = async (req, res) => {
       res.setHeader('Content-Length', '0');
       res.end();
     } else if (req.method === 'GET' || req.method === 'PUT') {
-      const device = await getDevice(query.deviceId);
+      const device = await shared.device.get(query.deviceId);
       if (!device) {
         res.statusCode = 404;
         return res.end('Not Found');
@@ -46,8 +43,8 @@ module.exports = async (req, res) => {
       }
 
       // PUT
-      const body = await parseBody.json(req);
-      const result = Joi.validate(body, schema);
+      const requestBody = await parseBody.json(req);
+      const result = Joi.validate(requestBody, schema);
       if (result.error) {
         res.statusCode = 400;
         return res.end(JSON.stringify(result.error.details.map(d => d.message)));
@@ -55,47 +52,11 @@ module.exports = async (req, res) => {
 
       await shared.dynamo.db.putItem({
         TableName: 'devices',
-        Item: shared.dynamo.marshaller.marshallItem(body)
+        Item: shared.dynamo.marshaller.marshallItem(requestBody)
       }).promise();
 
-      const goals = body.goals.map(g => {
-        return {
-          value: (g.current / g.total).toFixed(2),
-          promise: (g.promise / g.total).toFixed(2)
-        };
-      });
-
-      console.log('%s: sending goal updates %o', query.deviceId, goals);
       const accessToken = await shared.auth.getAccessToken();
-      const throttle = new PromiseThrottle({ requestsPerSecond: 2, promiseImplementation: Promise });
-
-      const requests = [];
-      const toggleData = body.goals.map(b => b.enabled ? 1 : 0).join('|');
-      requests.push(throttle.add(
-        () => axios.post(
-          'https://api.particle.io/v1/devices/events',
-          querystring.stringify({
-            name: `${query.deviceId}/toggle`,
-            data: toggleData,
-            private: true,
-            ttl: 86400, // 24hrs
-            access_token: accessToken
-          }))
-      ));
-
-      requests.push(...goals.map((b, i) => throttle.add(
-        () => axios.post(
-          'https://api.particle.io/v1/devices/events',
-          querystring.stringify({
-            name: `${query.deviceId}/update`,
-            data: `${(i + 1)}|${b.value}|${b.promise}`,
-            private: true,
-            ttl: 86400, // 24hrs
-            access_token: accessToken
-          }))
-      )));
-
-      await Promise.all(requests);
+      shared.device.update(accessToken, requestBody);
 
       res.statusCode = 204;
       return res.end();
@@ -110,12 +71,3 @@ module.exports = async (req, res) => {
     return res.end('Unexpected Error');
   }
 };
-
-async function getDevice(deviceId) {
-  const data = await shared.dynamo.db.getItem({
-    TableName: 'devices',
-    Key: { deviceId: { S: deviceId } }
-  }).promise();
-
-  return data.Item ? shared.dynamo.marshaller.unmarshallItem(data.Item) : null;
-}

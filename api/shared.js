@@ -1,5 +1,6 @@
 const axios = require('axios');
 const querystring = require('querystring');
+const PromiseThrottle = require('promise-throttle');
 const DynamoDb = require('aws-sdk/clients/dynamodb');
 const { Marshaller } = require('@aws/dynamodb-auto-marshaller');
 
@@ -67,6 +68,56 @@ module.exports = {
         console.log('%s: new token issued', clientId);
         return tokenResponse.data.access_token;
       }
+    }
+  },
+  device: {
+    async get(deviceId) {
+      const data = await db.getItem({
+        TableName: 'devices',
+        Key: { deviceId: { S: deviceId } }
+      }).promise();
+
+      return data.Item ? marshaller.unmarshallItem(data.Item) : null;
+    },
+    async update(accessToken, device) {
+      const requests = [];
+      const throttle = new PromiseThrottle({ requestsPerSecond: 2, promiseImplementation: Promise });
+      const baseOptions = {
+        private: true,
+        ttl: 86400, // 24hrs
+        access_token: accessToken
+      };
+
+      requests.push(throttle.add(
+        () => axios.post(
+          'https://api.particle.io/v1/devices/events',
+          querystring.stringify(Object.assign({}, baseOptions, {
+            name: `${device.deviceId}/toggle`,
+            data: device.goals.map(g => g.enabled ? 1 : 0).join('|')
+          })))
+      ));
+
+      requests.push(throttle.add(
+        () => axios.post(
+          'https://api.particle.io/v1/devices/events',
+          querystring.stringify(Object.assign({}, baseOptions, {
+            name: `${device.deviceId}/color`,
+            data: device.goals.map(g => g.color).join('|')
+          })))
+      ));
+
+      requests.push(throttle.add(
+        () => axios.post(
+          'https://api.particle.io/v1/devices/events',
+          querystring.stringify(Object.assign({}, baseOptions, {
+            name: `${device.deviceId}/update`,
+            data: device.goals
+              .map(g => `${(g.current / g.total).toFixed(2)},${(g.promise / g.total).toFixed(2)}`)
+              .join('|')
+          })))
+      ));
+
+      await Promise.all(requests);
     }
   }
 };
