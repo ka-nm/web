@@ -1,4 +1,3 @@
-import 'material-design-icons/iconfont/material-icons.css'
 import '@babel/polyfill'
 import Vue from 'vue'
 import './plugins/vuetify'
