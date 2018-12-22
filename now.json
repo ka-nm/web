@@ -6,6 +6,8 @@
     "AWS_KEY": "@aws_key",
     "AWS_SECRET": "@aws_secret",
     "WEBHOOK_ID": "@webhook_id",
+    "DIGIPIGGY_CLIENT_ID": "@digipiggy_client_id",
+    "DIGIPIGGY_CLIENT_SECRET": "@digipiggy_client_secret",
     "PARTICLE_CLIENT_ID": "@particle_client_id",
     "PARTICLE_CLIENT_SECRET": "@particle_client_secret"
   },
@@ -13,6 +15,10 @@
     {
       "src": "app/package.json",
       "use": "@now/static-build"
+    },
+    {
+      "src": "api/account.js",
+      "use": "@now/node"
     },
     {
       "src": "api/device.js",
@@ -53,11 +59,27 @@
       "dest": "/app/img/$file"
     },
     {
+      "src": "/api/account",
+      "methods": [
+        "OPTIONS",
+        "POST"
+      ],
+      "dest": "/api/account.js"
+    },
+    {
       "src": "/api/device/(?<id>[^/]*)",
+      "methods": [
+        "OPTIONS",
+        "GET",
+        "PUT"
+      ],
       "dest": "/api/device.js?deviceId=$id"
     },
     {
       "src": "/webhooks/device",
+      "methods": [
+        "POST"
+      ],
       "dest": "api/webhooks.js"
     }
   ]
