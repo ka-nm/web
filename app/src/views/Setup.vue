@@ -1,124 +1,68 @@
 <template>
   <v-card class="elevation-12">
     <v-toolbar dark color="primary">
-      <v-toolbar-title>Goals</v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-btn icon to="/">
-        <v-icon>keyboard_backspace</v-icon>
-      </v-btn>
+      <v-toolbar-title>Setup</v-toolbar-title>
     </v-toolbar>
-    <v-card-text class="grey lighten-5">
-      <v-alert
-        class="mb-3"
-        :value="!totalPercentageValid"
-        type="warning"
-      >Total percentage does not add up to 100.</v-alert>
-      <v-expansion-panel popout>
-        <v-expansion-panel-content v-for="(goal, i) in goals" :key="i">
-          <div slot="header">
-            <v-chip color="white" :disabled="true" :class="(goal.enabled ? 'goal-enabled' : '')">
-              <v-avatar :color="goal.enabled ? $color(goal.color) : 'grey'"></v-avatar>
-              {{ goal.name }}
-            </v-chip>
-          </div>
-          <v-card>
-            <goal v-model="goals[i]" :busy="busy" @valid="onValid(i, $event)"/>
-          </v-card>
-        </v-expansion-panel-content>
-      </v-expansion-panel>
+    <v-card-text>
+      <v-stepper v-model="step" vertical>
+        <v-stepper-step :complete="step > 1" step="1">
+          Start
+          <small>Device setup overview</small>
+        </v-stepper-step>
+        <v-stepper-content step="1">
+          <p>This will allow you to setup your pig yada yada yada...</p>
+          <v-btn color="primary" @click="step = 2">Continue</v-btn>
+        </v-stepper-content>
+
+        <v-stepper-step :complete="step > 2" step="2">
+          Account
+          <small>Create your user account</small>
+        </v-stepper-step>
+        <v-stepper-content step="2">
+          <account @continue="onAccountContinue"/>
+        </v-stepper-content>
+
+        <v-stepper-step :complete="step > 3" step="3">
+          WiFi
+          <small>Connect to your local network</small>
+        </v-stepper-step>
+        <v-stepper-content step="3">
+          <wifi :claimCode="claimCode" @continue="step = 4"/>
+        </v-stepper-content>
+
+        <v-stepper-step step="4">
+          Finish
+          <small>Complete setup of your device</small>
+        </v-stepper-step>
+        <v-stepper-content step="4">
+          <p>Congrats - you're done!</p>
+          <v-btn color="primary">Finish</v-btn>
+        </v-stepper-content>
+      </v-stepper>
     </v-card-text>
-    <v-card-actions>
-      <v-spacer></v-spacer>
-      <v-btn
-        color="primary"
-        @click="onSave"
-        :disabled="!totalPercentageValid || !allGoalsValid || busy"
-      >Save Goals
-        <v-icon right dark>cloud_upload</v-icon>
-      </v-btn>
-    </v-card-actions>
   </v-card>
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex';
-import Goal from '@/components/Goal';
+import Account from '@/components/Account';
+import WiFi from '@/components/WiFi';
 
 export default {
   components: {
-    goal: Goal
+    account: Account,
+    wifi: WiFi
   },
   data() {
     return {
-      allGoalsValid: true,
-      totalPercentageValid: true,
-      valid: [true, true, true, true],
-      busy: false,
-      goals: []
+      step: 0,
+      claimCode: null
     };
   },
-  computed: {
-    ...mapState(['device'])
-  },
   methods: {
-    ...mapActions(['storeDevice', 'displayMessage']),
-    onValid(index, isValid) {
-      this.valid[index] = isValid;
-      this.allGoalsValid = this.valid.every(x => x);
-    },
-    onPercentage() {
-      const total = this.goals.reduce((sum, goal) => +goal.percentage + sum, 0);
-      this.totalPercentageValid = total === 100;
-    },
-    async onSave() {
-      this.busy = true;
-      const device = {
-        deviceId: this.device.deviceId,
-        goals: this.goals.map(g => {
-          return {
-            name: g.name,
-            enabled: g.enabled,
-            color: +g.color,
-            percentage: +g.percentage / 100,
-            total: +g.total,
-            current: +g.current,
-            promise: +g.promise
-          };
-        })
-      };
-
-      if (await this.storeDevice(device)) {
-        this.displayMessage({ text: 'Goals updated', color: 'info' });
-      } else {
-        this.displayMessage({ text: 'Failed to update goals', color: 'error' });
-      }
-
-      this.busy = false;
-    }
-  },
-  mounted() {
-    this.goals = this.device.goals.map(g => {
-      return {
-        name: g.name,
-        color: g.color,
-        enabled: g.enabled,
-        percentage: g.percentage * 100,
-        total: g.total,
-        current: g.current,
-        promise: g.promise
-      };
-    });
-
-    for (let index in this.goals) {
-      this.$watch(['goals', index, 'percentage'].join('.'), this.onPercentage);
+    onAccountContinue(code) {
+      this.claimCode = code;
+      this.step = 3;
     }
   }
 };
 </script>
-
-<style scoped>
-.goal-enabled {
-  background: #e0e0e0;
-  color: rgba(0, 0, 0, 0.87);
-}
-</style>

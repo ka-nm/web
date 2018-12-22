@@ -5,7 +5,6 @@
     </v-toolbar>
     <v-card-text>
       <v-text-field
-        name="deviceId"
         label="Device"
         type="text"
         box

@@ -1,9 +1,9 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Device from './views/Device.vue'
-import Register from './views/Register.vue'
-import Home from './views/Home.vue'
 import Setup from './views/Setup.vue'
+import Home from './views/Home.vue'
+import Settings from './views/Settings.vue'
 
 Vue.use(Router)
 
@@ -15,9 +15,9 @@ const router = new Router({
       component: Device
     },
     {
-      path: '/register',
-      name: 'register',
-      component: Register
+      path: '/setup',
+      name: 'setup',
+      component: Setup
     },
     {
       path: '/',
@@ -25,15 +25,15 @@ const router = new Router({
       component: Home
     },
     {
-      path: '/setup',
-      name: 'setup',
-      component: Setup
+      path: '/settings',
+      name: 'settings',
+      component: Settings
     }
   ]
 });
 
 router.beforeEach((to, from, next) => {
-  if (to.path === '/register') {
+  if (to.path === '/setup') {
     return next();
   }
 

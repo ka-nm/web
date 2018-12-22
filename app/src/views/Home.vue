@@ -3,7 +3,7 @@
     <v-toolbar dark color="primary">
       <v-toolbar-title>DigiPiggy</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn icon to="setup">
+      <v-btn icon to="settings">
         <v-icon>settings</v-icon>
       </v-btn>
     </v-toolbar>

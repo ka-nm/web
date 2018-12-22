@@ -1,9 +1,9 @@
 <template>
   <v-card-text>
-    <v-form ref="form" v-model="valid" lazy-validation>
+    <v-form v-model="valid" lazy-validation>
       <v-text-field
-        label="Name:"
-        :rules="nameRules"
+        label="Name"
+        :rules="[rules.nameRequired, rules.nameLength]"
         placeholder="College"
         box
         counter="20"
@@ -13,7 +13,7 @@
         :disabled="busy"
       ></v-text-field>
       <v-text-field
-        label="Goal total:"
+        label="Goal total"
         prefix="$"
         placeholder="200"
         box
@@ -23,8 +23,8 @@
         :disabled="busy"
       ></v-text-field>
       <v-text-field
-        label="Current amount saved:"
-        :rules="currentRules"
+        label="Current amount saved"
+        :rules="[rules.currentValue]"
         prefix="$"
         placeholder="10"
         box
@@ -34,8 +34,8 @@
         :disabled="busy"
       ></v-text-field>
       <v-text-field
-        label="Amount promised:"
-        :rules="promiseRules"
+        label="Amount promised"
+        :rules="[rules.promiseValue]"
         prefix="$"
         placeholder="50"
         box
@@ -45,7 +45,7 @@
         :disabled="busy"
       ></v-text-field>
       <v-text-field
-        label="Percentage allocated from each deposit:"
+        label="Percentage allocated from each deposit"
         prefix="%"
         placeholder="40"
         box
@@ -68,9 +68,12 @@ export default {
   data() {
     return {
       valid: true,
-      nameRules: [v => !!v || 'Name is required', v => (v && v.length <= 20) || 'Name must be less than 20 characters'],
-      currentRules: [() => +this.value.current <= +this.value.total || 'Current amount cannot exceed total'],
-      promiseRules: [() => +this.value.promise < +this.value.total || 'Promise amount cannot match or exceed total']
+      rules: {
+        nameRequired: v => !!v || 'Name is required',
+        nameLength: v => (v && v.length <= 20) || 'Name must be less than 20 characters',
+        currentValue: v => +v <= +this.value.total || 'Current amount cannot exceed total',
+        promiseValue: v => +v < +this.value.total || 'Promise amount cannot match or exceed total'
+      }
     };
   },
   watch: {
