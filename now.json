@@ -14,7 +14,8 @@
   "builds": [
     {
       "src": "app/package.json",
-      "use": "@now/static-build"
+      "use": "@now/static-build",
+      "config": { "maxLambdaSize": "15mb" }
     },
     {
       "src": "api/account.js",
