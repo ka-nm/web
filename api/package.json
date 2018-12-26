@@ -5,6 +5,7 @@
     "axios": "0.18.0",
     "aws-sdk": "2.359.0",
     "@aws/dynamodb-auto-marshaller": "0.7.1",
-    "joi": "14.3.0"
+    "joi": "14.3.0",
+    "csrf": "^3.0.6"
   }
 }

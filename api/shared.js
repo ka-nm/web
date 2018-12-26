@@ -20,8 +20,15 @@ module.exports = {
     db,
     marshaller
   },
+  cors: {
+    setStandardHeaders: res => {
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+    }
+  },
   auth: {
-    getAccessToken: async function () {
+    getAccessToken: async () => {
       const response = await db.getItem({
         TableName: 'tokens',
         Key: { clientId: { S: clientId } }
@@ -71,7 +78,7 @@ module.exports = {
     }
   },
   device: {
-    async get(deviceId) {
+    getById: async deviceId => {
       const data = await db.getItem({
         TableName: 'devices',
         Key: { deviceId: { S: deviceId } }
@@ -79,7 +86,22 @@ module.exports = {
 
       return data.Item ? marshaller.unmarshallItem(data.Item) : null;
     },
-    async update(accessToken, device) {
+    getByCode: async deviceCode => {
+      const data = await db.query({
+        ExpressionAttributeValues: {
+          ':code': {
+            S: deviceCode
+          }
+        },
+        IndexName: 'deviceCode-index',
+        KeyConditionExpression: 'deviceCode = :code',
+        Select: 'ALL_ATTRIBUTES',
+        TableName: 'devices'
+      }).promise();
+
+      return data.Items.length ? marshaller.unmarshallItem(data.Items[0]) : null;
+    },
+    update: async (accessToken, device) => {
       const requests = [];
       const throttle = new PromiseThrottle({ requestsPerSecond: 2, promiseImplementation: Promise });
       const baseOptions = {

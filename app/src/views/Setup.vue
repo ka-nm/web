@@ -6,12 +6,11 @@
     <v-card-text>
       <v-stepper v-model="step" vertical>
         <v-stepper-step :complete="step > 1" step="1">
-          Start
-          <small>Device setup overview</small>
+          Device Code
+          <small>Find the device code on the back of your device</small>
         </v-stepper-step>
         <v-stepper-content step="1">
-          <p>This will allow you to setup your pig yada yada yada...</p>
-          <v-btn color="primary" @click="step = 2">Continue</v-btn>
+          <deviceCode @continue="onCodeContinue"/>
         </v-stepper-content>
 
         <v-stepper-step :complete="step > 2" step="2">
@@ -19,11 +18,11 @@
           <small>Create your user account</small>
         </v-stepper-step>
         <v-stepper-content step="2">
-          <account @continue="onAccountContinue"/>
+          <account :tokenInfo="deviceTokenInfo" @continue="onAccountContinue"/>
         </v-stepper-content>
 
         <v-stepper-step :complete="step > 3" step="3">
-          WiFi
+          Wi-Fi
           <small>Connect to your local network</small>
         </v-stepper-step>
         <v-stepper-content step="3">
@@ -32,11 +31,13 @@
 
         <v-stepper-step step="4">
           Finish
-          <small>Complete setup of your device</small>
+          <small>Complete the setup of your device</small>
         </v-stepper-step>
         <v-stepper-content step="4">
           <p>Congrats - you're done!</p>
-          <v-btn color="primary">Finish</v-btn>
+          <v-btn color="primary">Finish
+            <v-icon right dark>check</v-icon>
+          </v-btn>
         </v-stepper-content>
       </v-stepper>
     </v-card-text>
@@ -44,21 +45,28 @@
 </template>
 
 <script>
+import DeviceCode from '@/components/DeviceCode';
 import Account from '@/components/Account';
 import WiFi from '@/components/WiFi';
 
 export default {
   components: {
+    deviceCode: DeviceCode,
     account: Account,
     wifi: WiFi
   },
   data() {
     return {
       step: 0,
+      deviceTokenInfo: {},
       claimCode: null
     };
   },
   methods: {
+    onCodeContinue(info) {
+      this.deviceTokenInfo = info;
+      this.step = 2;
+    },
     onAccountContinue(code) {
       this.claimCode = code;
       this.step = 3;

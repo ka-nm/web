@@ -18,18 +18,15 @@ const schema = Joi.object().keys({
 
 module.exports = async (req, res) => {
   try {
-    const { query } = parse(req.url, true);
-
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+    shared.cors.setStandardHeaders(res);
 
     if (req.method === 'OPTIONS') {
       res.statusCode = 204;
       res.setHeader('Content-Length', '0');
       res.end();
     } else if (req.method === 'GET' || req.method === 'PUT') {
-      const device = await shared.device.get(query.deviceId);
+      const { query } = parse(req.url, true);
+      const device = await shared.device.getById(query.deviceId);
       if (!device) {
         res.statusCode = 404;
         return res.end('Not Found');

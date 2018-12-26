@@ -2,13 +2,14 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios';
 
-const apiBaseUrl = process.env.NODE_ENV === 'development' ? 'https://digipiggybank.com' : '';
+const apiBaseUrl = process.env.NODE_ENV === 'development' ? 'https://web-cqjmgeza7.now.sh' : '';
 const cloneDevice = device => JSON.parse(JSON.stringify(device));
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    baseUrl: apiBaseUrl,
     message: {
       text: null,
       color: null

@@ -22,7 +22,7 @@ module.exports = async (req, res) => {
       return res.end();
     }
 
-    const device = await shared.device.get(body.coreid);
+    const device = await shared.device.getById(body.coreid);
     if (!device) {
       console.error('Invalid device: %s', body.coreid);
       res.statusCode = 204;
