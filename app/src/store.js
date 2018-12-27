@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios';
 
-const apiBaseUrl = process.env.NODE_ENV === 'development' ? 'https://web-cqjmgeza7.now.sh' : '';
+const apiBaseUrl = process.env.NODE_ENV === 'development' ? 'https://web-5kw4co3ik.now.sh' : '';
 const cloneDevice = device => JSON.parse(JSON.stringify(device));
 
 Vue.use(Vuex)

@@ -1,23 +1,25 @@
-import Vue from 'vue'
-import Router from 'vue-router'
-import Device from './views/Device.vue'
-import Setup from './views/Setup.vue'
-import Home from './views/Home.vue'
-import Settings from './views/Settings.vue'
+import Vue from 'vue';
+import Router from 'vue-router';
+import Auth from './auth';
+import Setup from './views/Setup';
+import Callback from './views/Callback';
+import Home from './views/Home';
+import Settings from './views/Settings';
 
-Vue.use(Router)
+Vue.use(Router);
 
 const router = new Router({
+  mode: 'history',
   routes: [
-    {
-      path: '/device',
-      name: 'device',
-      component: Device
-    },
     {
       path: '/setup',
       name: 'setup',
       component: Setup
+    },
+    {
+      path: '/callback',
+      name: 'callback',
+      component: Callback
     },
     {
       path: '/',
@@ -28,25 +30,20 @@ const router = new Router({
       path: '/settings',
       name: 'settings',
       component: Settings
+    },
+    {
+      path: '*',
+      redirect: { name: 'home' }
     }
   ]
 });
 
 router.beforeEach((to, from, next) => {
-  if (to.path === '/setup') {
+  if (to.path === '/setup' || to.path === '/callback' || Auth.isAuthenticated()) {
     return next();
   }
 
-  const device = Vue.ls.get('device');
-  if (to.path === '/device') {
-    return device ? next('/') : next();
-  }
-
-  if (device) {
-    return next();
-  }
-
-  next('/device');
+  Auth.login();
 });
 
 export default router;

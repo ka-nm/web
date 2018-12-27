@@ -29,8 +29,8 @@ module.exports = async (req, res) => {
       return res.end();
     }
 
-    const accessToken = await shared.auth.getAccessToken();
-    await shared.device.update(accessToken, device);
+    const accessToken = await shared.particle.getAccessToken();
+    await shared.particle.updateDevice(accessToken, device);
   } catch (err) {
     console.error(err);
     res.statusCode = 500;

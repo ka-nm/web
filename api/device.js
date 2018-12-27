@@ -52,8 +52,8 @@ module.exports = async (req, res) => {
         Item: shared.dynamo.marshaller.marshallItem(requestBody)
       }).promise();
 
-      const accessToken = await shared.auth.getAccessToken();
-      await shared.device.update(accessToken, requestBody);
+      const accessToken = await shared.particle.getAccessToken();
+      await shared.particle.updateDevice(accessToken, requestBody);
 
       res.statusCode = 204;
       return res.end();

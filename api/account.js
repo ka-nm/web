@@ -21,7 +21,7 @@ module.exports = async (req, res) => {
     if (req.method === 'OPTIONS') {
       res.statusCode = 204;
       res.setHeader('Content-Length', '0');
-      res.end();
+      return res.end();
     } else if (req.method === 'GET') {
       const { query } = parse(req.url, true);
       const device = await shared.device.getByCode(query.deviceCode);
@@ -52,6 +52,18 @@ module.exports = async (req, res) => {
         return res.end('Forbidden');
       }
 
+      const auth0Token = await shared.auth0.getAccessToken();
+      await axios({
+        method: 'post',
+        url: 'https://digipiggy.auth0.com/api/v2/users',
+        headers: { Authorization: `Bearer ${auth0Token}` },
+        data: {
+          connection: 'Username-Password-Authentication',
+          email: requestBody.email,
+          password: requestBody.password
+        }
+      });
+
       const custResponse = await axios({
         method: 'post',
         url: 'https://api.particle.io/v1/products/8466/customers',
@@ -61,11 +73,11 @@ module.exports = async (req, res) => {
         },
         data: querystring.stringify({
           email: requestBody.email,
-          password: requestBody.password
-        }),
-        maxRedirects: 0,
-        validateStatus: status => status >= 200 && status < 400
+          no_password: true
+        })
       });
+
+      await shared.token.store(requestBody.email, custResponse.data.access_token, custResponse.data.refresh_token);
 
       const claimResponse = await axios.post(
         `https://api.particle.io/v1/products/8466/device_claims?access_token=${custResponse.data.access_token}`
@@ -74,8 +86,7 @@ module.exports = async (req, res) => {
       res.setHeader('Content-Type', 'application/json');
       return res.end(JSON.stringify({
         accessToken: custResponse.data.access_token,
-        refreshToken: custResponse.data.refresh_token,
-        claimCode: claimResponse.data.claim_code,
+        claimCode: claimResponse.data.claim_code
       }));
     }
 
