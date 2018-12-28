@@ -34,8 +34,9 @@
           <small>Complete the setup of your device</small>
         </v-stepper-step>
         <v-stepper-content step="4">
-          <p>Congrats - you're done!</p>
-          <v-btn color="primary">Finish
+          <p>Congratulations - device setup is complete!</p>
+          <p>You'll now be asked to login so you can interact with your device.</p>
+          <v-btn color="primary" @click="onFinish">Finish
             <v-icon right dark>check</v-icon>
           </v-btn>
         </v-stepper-content>
@@ -70,6 +71,9 @@ export default {
     onAccountContinue(code) {
       this.claimCode = code;
       this.step = 3;
+    },
+    onFinish() {
+      this.$router.replace({ name: 'home' });
     }
   }
 };

@@ -23,8 +23,8 @@ module.exports = async (req, res) => {
     if (req.method === 'OPTIONS') {
       res.statusCode = 204;
       res.setHeader('Content-Length', '0');
-      res.end();
-    } else if (req.method === 'GET' || req.method === 'PUT') {
+      return res.end();
+    } else if (req.method === 'PUT') {
       const { query } = parse(req.url, true);
       const device = await shared.device.getById(query.deviceId);
       if (!device) {
@@ -32,14 +32,6 @@ module.exports = async (req, res) => {
         return res.end('Not Found');
       }
 
-      // GET
-      if (req.method === 'GET') {
-        res.setHeader('Content-Type', 'application/json');
-        res.setHeader('X-Content-Type-Options', 'nosniff');
-        return res.end(JSON.stringify(device));
-      }
-
-      // PUT
       const requestBody = await parseBody.json(req);
       const result = Joi.validate(requestBody, schema);
       if (result.error) {
@@ -59,7 +51,6 @@ module.exports = async (req, res) => {
       return res.end();
     }
 
-    console.error('Invalid HTTP method');
     res.statusCode = 405;
     return res.end();
   } catch (err) {

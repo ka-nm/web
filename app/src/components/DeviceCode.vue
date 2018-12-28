@@ -51,7 +51,7 @@ export default {
         try {
           this.busy = true;
           try {
-            const response = await this.$http.get(`${this.baseUrl}/api/account?deviceCode=${this.deviceCode}`);
+            const response = await this.$http.get(`${this.baseUrl}/api/account/${this.deviceCode}`);
             this.$emit('continue', { code: this.deviceCode, token: response.data.token });
           } finally {
             this.busy = false;

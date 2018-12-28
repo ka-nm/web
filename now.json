@@ -6,12 +6,12 @@
     "AWS_KEY": "@aws_key",
     "AWS_SECRET": "@aws_secret",
     "WEBHOOK_ID": "@webhook_id",
+    "AUTH0_BASE_URL": "@auth0_base_url",
     "AUTH0_CLIENT_ID": "@auth0_client_id",
     "AUTH0_CLIENT_SECRET": "@auth0_client_secret",
     "DIGIPIGGY_CLIENT_ID": "@digipiggy_client_id",
     "DIGIPIGGY_CLIENT_SECRET": "@digipiggy_client_secret",
-    "PARTICLE_CLIENT_ID": "@particle_client_id",
-    "PARTICLE_CLIENT_SECRET": "@particle_client_secret"
+    "PARTICLE_PRODUCT_BASE_URL": "@particle_product_base_url"
   },
   "builds": [
     {
@@ -19,11 +19,19 @@
       "use": "@now/static-build"
     },
     {
-      "src": "api/account.js",
+      "src": "api/account-token-get.js",
       "use": "@now/node"
     },
     {
-      "src": "api/device.js",
+      "src": "api/account-post.js",
+      "use": "@now/node"
+    },
+    {
+      "src": "api/device-get.js",
+      "use": "@now/node"
+    },
+    {
+      "src": "api/device-put.js",
       "use": "@now/node"
     },
     {
@@ -37,8 +45,51 @@
   ],
   "routes": [
     {
-      "src": "/",
-      "dest": "/app/index.html"
+      "src": "/api/token",
+      "methods": [
+        "OPTIONS",
+        "GET"
+      ],
+      "dest": "/api/token-get.js"
+    },
+    {
+      "src": "/api/account/(?<code>[^/]*)",
+      "methods": [
+        "OPTIONS",
+        "GET"
+      ],
+      "dest": "/api/account-token-get.js?deviceCode=$code"
+    },
+    {
+      "src": "/api/account",
+      "methods": [
+        "OPTIONS",
+        "POST"
+      ],
+      "dest": "/api/account-post.js"
+    },
+    {
+      "src": "/api/device/(?<id>[^/]*)",
+      "methods": [
+        "OPTIONS",
+        "GET"
+      ],
+      "dest": "/api/device-get.js?deviceId=$id"
+    },
+    {
+      "src": "/api/device/(?<id>[^/]*)",
+      "methods": [
+        "OPTIONS",
+        "PUT"
+      ],
+      "dest": "/api/device-put.js?deviceId=$id"
+    },
+    {
+      "src": "/webhooks/device",
+      "methods": [
+        "POST"
+      ],
+      "dest": "api/webhooks.js"
     },
     {
       "src": "/favicon.ico",
@@ -49,41 +100,12 @@
       "dest": "/app/touch-icon-iphone-retina.png"
     },
     {
-      "src": "/css/(?<file>.*)",
-      "dest": "/app/css/$file"
+      "src": "/(?<file>(css|js|img)/.*)",
+      "dest": "/app/$file"
     },
     {
-      "src": "/js/(?<file>.*)",
-      "dest": "/app/js/$file"
-    },
-    {
-      "src": "/img/(?<file>.*)",
-      "dest": "/app/img/$file"
-    },
-    {
-      "src": "/api/account",
-      "methods": [
-        "OPTIONS",
-        "GET",
-        "POST"
-      ],
-      "dest": "/api/account.js"
-    },
-    {
-      "src": "/api/device/(?<id>[^/]*)",
-      "methods": [
-        "OPTIONS",
-        "GET",
-        "PUT"
-      ],
-      "dest": "/api/device.js?deviceId=$id"
-    },
-    {
-      "src": "/webhooks/device",
-      "methods": [
-        "POST"
-      ],
-      "dest": "api/webhooks.js"
+      "src": "/(?!(api|webhooks)).*",
+      "dest": "/app/index.html"
     }
   ]
 }

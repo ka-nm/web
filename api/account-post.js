@@ -1,4 +1,3 @@
-const { parse } = require('url');
 const parseBody = require('co-body');
 const axios = require('axios');
 const CSRF = require('csrf');
@@ -22,17 +21,6 @@ module.exports = async (req, res) => {
       res.statusCode = 204;
       res.setHeader('Content-Length', '0');
       return res.end();
-    } else if (req.method === 'GET') {
-      const { query } = parse(req.url, true);
-      const device = await shared.device.getByCode(query.deviceCode);
-      if (!device) {
-        res.statusCode = 404;
-        return res.end('Not Found');
-      }
-
-      res.setHeader('Content-Type', 'application/json');
-      res.setHeader('X-Content-Type-Options', 'nosniff');
-      return res.end(JSON.stringify({ token: csrf.create(device.deviceId) }));
     } else if (req.method === 'POST') {
       const requestBody = await parseBody.json(req);
       const result = Joi.validate(requestBody, schema);
@@ -55,18 +43,20 @@ module.exports = async (req, res) => {
       const auth0Token = await shared.auth0.getAccessToken();
       await axios({
         method: 'post',
-        url: 'https://digipiggy.auth0.com/api/v2/users',
+        url: `${process.env.AUTH0_BASE_URL}/api/v2/users`,
         headers: { Authorization: `Bearer ${auth0Token}` },
         data: {
           connection: 'Username-Password-Authentication',
           email: requestBody.email,
-          password: requestBody.password
+          password: requestBody.password,
+          email_verified: true,
+          verify_email: false
         }
       });
 
       const custResponse = await axios({
         method: 'post',
-        url: 'https://api.particle.io/v1/products/8466/customers',
+        url: `${process.env.PARTICLE_PRODUCT_BASE_URL}/customers`,
         auth: {
           username: process.env.DIGIPIGGY_CLIENT_ID,
           password: process.env.DIGIPIGGY_CLIENT_SECRET,
@@ -80,8 +70,7 @@ module.exports = async (req, res) => {
       await shared.token.store(requestBody.email, custResponse.data.access_token, custResponse.data.refresh_token);
 
       const claimResponse = await axios.post(
-        `https://api.particle.io/v1/products/8466/device_claims?access_token=${custResponse.data.access_token}`
-      );
+        `${process.env.PARTICLE_PRODUCT_BASE_URL}/device_claims?access_token=${custResponse.data.access_token}`);
 
       res.setHeader('Content-Type', 'application/json');
       return res.end(JSON.stringify({

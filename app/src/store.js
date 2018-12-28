@@ -1,15 +1,14 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
+import Vue from 'vue';
+import Vuex from 'vuex';
 import axios from 'axios';
 
-const apiBaseUrl = process.env.NODE_ENV === 'development' ? 'https://web-5kw4co3ik.now.sh' : '';
 const cloneDevice = device => JSON.parse(JSON.stringify(device));
 
-Vue.use(Vuex)
+Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    baseUrl: apiBaseUrl,
+    baseUrl: process.env.VUE_APP_API_BASE_URL || '',
     message: {
       text: null,
       color: null
@@ -40,9 +39,9 @@ export default new Vuex.Store({
       commit('setMessage', options);
       setTimeout(() => commit('setMessage', { text: null, color: null }), 0);
     },
-    async loadDevice({ commit }, deviceId) {
+    async loadDevice({ state, commit }, deviceId) {
       try {
-        const response = await axios.get(`${apiBaseUrl}/api/device/${deviceId}`);
+        const response = await axios.get(`${state.baseUrl}/api/device/${deviceId}`);
         Vue.ls.set('device', response.data);
         commit('setDevice', response.data);
         return true;
@@ -51,9 +50,9 @@ export default new Vuex.Store({
         return false;
       }
     },
-    async storeDevice({ commit }, device) {
+    async storeDevice({ state, commit }, device) {
       try {
-        await axios.put(`${apiBaseUrl}/api/device/${device.deviceId}`, device);
+        await axios.put(`${state.baseUrl}/api/device/${device.deviceId}`, device);
         Vue.ls.set('device', device);
         commit('setDevice', device);
         return true;
@@ -67,7 +66,7 @@ export default new Vuex.Store({
       updatedDevice.goals.forEach((d, i) => d.current += deposits[i]);
 
       try {
-        await axios.put(`${apiBaseUrl}/api/device/${updatedDevice.deviceId}`, updatedDevice);
+        await axios.put(`${state.baseUrl}/api/device/${updatedDevice.deviceId}`, updatedDevice);
         Vue.ls.set('device', updatedDevice);
         commit('setDevice', updatedDevice);
         return true;

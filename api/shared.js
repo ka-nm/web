@@ -46,11 +46,11 @@ module.exports = {
 
       const tokenResponse = await axios({
         method: 'post',
-        url: 'https://digipiggy.auth0.com/oauth/token',
+        url: `${process.env.AUTH0_BASE_URL}/oauth/token`,
         data: {
           client_id: process.env.AUTH0_CLIENT_ID,
           client_secret: process.env.AUTH0_CLIENT_SECRET,
-          audience: 'https://digipiggy.auth0.com/api/v2/',
+          audience: `${process.env.AUTH0_BASE_URL}/api/v2/`,
           grant_type: 'client_credentials',
         }
       });
@@ -64,13 +64,13 @@ module.exports = {
     getAccessToken: async () => {
       const response = await db.getItem({
         TableName: 'tokens',
-        Key: { clientId: { S: process.env.PARTICLE_CLIENT_ID } }
+        Key: { clientId: { S: process.env.DIGIPIGGY_CLIENT_ID } }
       }).promise();
 
       if (response.Item) {
         const clientToken = marshaller.unmarshallItem(response.Item);
         if (clientToken.expires > Date.now()) {
-          console.log('%s: token valid', process.env.PARTICLE_CLIENT_ID);
+          console.log('%s: token valid', process.env.DIGIPIGGY_CLIENT_ID);
           return clientToken.accessToken;
         }
 
@@ -78,8 +78,8 @@ module.exports = {
           method: 'post',
           url: 'https://api.particle.io/oauth/token',
           auth: {
-            username: process.env.PARTICLE_CLIENT_ID,
-            password: process.env.PARTICLE_CLIENT_SECRET,
+            username: process.env.DIGIPIGGY_CLIENT_ID,
+            password: process.env.DIGIPIGGY_CLIENT_SECRET,
           },
           data: querystring.stringify({
             grant_type: 'client_credentials',
@@ -88,19 +88,19 @@ module.exports = {
         });
 
         await storeClientToken(
-          process.env.PARTICLE_CLIENT_ID,
+          process.env.DIGIPIGGY_CLIENT_ID,
           refreshTokenResponse.data.access_token,
           refreshTokenResponse.data.refresh_token);
 
-        console.log('%s: token refresh', process.env.PARTICLE_CLIENT_ID);
+        console.log('%s: token refresh', process.env.DIGIPIGGY_CLIENT_ID);
         return refreshTokenResponse.data.access_token;
       } else {
         const tokenResponse = await axios({
           method: 'post',
           url: 'https://api.particle.io/oauth/token',
           auth: {
-            username: process.env.PARTICLE_CLIENT_ID,
-            password: process.env.PARTICLE_CLIENT_SECRET,
+            username: process.env.DIGIPIGGY_CLIENT_ID,
+            password: process.env.DIGIPIGGY_CLIENT_SECRET,
           },
           data: querystring.stringify({
             grant_type: 'client_credentials',
@@ -109,11 +109,11 @@ module.exports = {
         });
 
         await storeClientToken(
-          process.env.PARTICLE_CLIENT_ID,
+          process.env.DIGIPIGGY_CLIENT_ID,
           tokenResponse.data.access_token,
           tokenResponse.data.refresh_token);
 
-        console.log('%s: new token issued', process.env.PARTICLE_CLIENT_ID);
+        console.log('%s: new token issued', process.env.DIGIPIGGY_CLIENT_ID);
         return tokenResponse.data.access_token;
       }
     },

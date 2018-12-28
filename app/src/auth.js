@@ -9,9 +9,9 @@ class AuthService {
   authenticated = this.isAuthenticated();
   authNotifier = new EventEmitter();
   auth0 = new auth0.WebAuth({
-    domain: 'digipiggy.auth0.com',
-    clientID: 'wKjIughqwOOWz9muGYE7I12ZG32Tuknw',
-    redirectUri: 'http://localhost:8080/callback',
+    domain: process.env.VUE_APP_AUTH0_DOMAIN,
+    clientID: process.env.VUE_APP_AUTH0_CLIENT_ID,
+    redirectUri: `${process.env.VUE_APP_AUTH0_REDIRECT_BASE_URL}/callback`,
     responseType: 'token id_token',
     scope: 'openid'
   });
@@ -24,9 +24,9 @@ class AuthService {
     this.auth0.parseHash((err, authResult) => {
       if (authResult && authResult.accessToken && authResult.idToken) {
         this.setSession(authResult);
-        router.replace('home');
+        router.replace({ name: 'home' });
       } else if (err) {
-        router.replace('home');
+        router.replace({ name: 'home' });
         console.log(err);
         alert(`Error: ${err.error} - check the console for further details`)
       }
@@ -64,7 +64,7 @@ class AuthService {
     this.authNotifier.emit('authChange', false);
 
     localStorage.removeItem('loggedIn');
-    router.replace('home');
+    router.replace({ name: 'home' });
   }
 
   isAuthenticated() {

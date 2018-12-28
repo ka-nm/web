@@ -14,6 +14,7 @@ export default {
   },
   created() {
     Auth.handleAuthentication();
+    // TODO: get particle token
   }
 };
 </script>
