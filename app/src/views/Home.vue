@@ -24,8 +24,8 @@
             </div>
           </div>
           <div v-else>
-            <p>You don't have any goals setup yet.</p>
-            <p>Click the gear in the upper right to get started.</p>
+            <p>You don't have any enabled goals.</p>
+            <p>Click the gear in the upper right to configure your goals.</p>
           </div>
         </v-layout>
       </v-container>

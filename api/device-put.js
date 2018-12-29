@@ -10,9 +10,9 @@ const schema = Joi.object().keys({
     enabled: Joi.boolean(),
     percentage: Joi.number().min(0).max(1).required(),
     color: Joi.number().integer().min(0).max(16777215),
-    total: Joi.number().greater(0).required(),
-    current: Joi.number().min(0).max(Joi.ref('total')),
-    promise: Joi.number().min(0).max(Joi.ref('total'))
+    total: Joi.number().min(0).required(),
+    current: Joi.number().min(0).max(Joi.ref('total')).required(),
+    promise: Joi.number().min(0).max(Joi.ref('total')).required()
   }))
 });
 

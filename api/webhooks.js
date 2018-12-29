@@ -4,14 +4,16 @@ const shared = require('./shared');
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
     console.error('Invalid HTTP method');
-    res.statusCode = 204;
+    res.setHeader('Content-Length', '0');
+    res.statusCode = 405;
     return res.end();
   }
 
   if (!req.headers['webhook-id'] || req.headers['webhook-id'] !== process.env.WEBHOOK_ID) {
     console.error('Unauthorized');
-    res.statusCode = 204;
-    return res.end();
+    res.setHeader('Content-Length', '0');
+    res.statusCode = 401;
+    return res.end('Unauthorized');
   }
 
   try {
@@ -25,6 +27,7 @@ module.exports = async (req, res) => {
     const device = await shared.device.getById(body.coreid);
     if (!device) {
       console.error('Invalid device: %s', body.coreid);
+      res.setHeader('Content-Length', '0');
       res.statusCode = 204;
       return res.end();
     }

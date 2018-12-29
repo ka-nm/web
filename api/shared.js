@@ -135,7 +135,7 @@ module.exports = {
 
       requests.push(throttle.add(
         () => axios.post(
-          'https://api.particle.io/v1/devices/events',
+          `${process.env.PARTICLE_PRODUCT_BASE_URL}/events`,
           querystring.stringify(Object.assign({}, baseOptions, {
             name: `${device.deviceId}/toggle`,
             data: device.goals.map(g => g.enabled ? 1 : 0).join('|')
@@ -144,7 +144,7 @@ module.exports = {
 
       requests.push(throttle.add(
         () => axios.post(
-          'https://api.particle.io/v1/devices/events',
+          `${process.env.PARTICLE_PRODUCT_BASE_URL}/events`,
           querystring.stringify(Object.assign({}, baseOptions, {
             name: `${device.deviceId}/color`,
             data: device.goals.map(g => g.color).join('|')
@@ -153,11 +153,11 @@ module.exports = {
 
       requests.push(throttle.add(
         () => axios.post(
-          'https://api.particle.io/v1/devices/events',
+          `${process.env.PARTICLE_PRODUCT_BASE_URL}/events`,
           querystring.stringify(Object.assign({}, baseOptions, {
             name: `${device.deviceId}/update`,
             data: device.goals
-              .map(g => `${(g.current / g.total).toFixed(2)},${(g.promise / g.total).toFixed(2)}`)
+              .map(g => `${g.total > 0 ? (g.current / g.total).toFixed(2) : '0.00'},${g.total > 0 ? (g.promise / g.total).toFixed(2) : '0.00'}`)
               .join('|')
           })))
       ));

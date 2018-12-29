@@ -67,7 +67,10 @@ export default {
       this.allGoalsValid = this.valid.every(x => x);
     },
     onPercentage() {
-      const total = this.goals.reduce((sum, goal) => +goal.percentage + sum, 0);
+      const total = this.goals
+        .filter(g => g.enabled)
+        .reduce((sum, goal) => +goal.percentage + sum, 0);
+
       this.totalPercentageValid = total === 100;
     },
     async onSave() {
@@ -111,6 +114,7 @@ export default {
 
     for (let index in this.goals) {
       this.$watch(['goals', index, 'percentage'].join('.'), this.onPercentage);
+      this.$watch(['goals', index, 'enabled'].join('.'), this.onPercentage);
     }
   }
 };

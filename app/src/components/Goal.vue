@@ -4,7 +4,6 @@
       <v-text-field
         label="Name"
         :rules="[rules.nameRequired, rules.nameLength]"
-        placeholder="College"
         box
         counter="20"
         clearable
@@ -15,7 +14,6 @@
       <v-text-field
         label="Goal total"
         prefix="$"
-        placeholder="200"
         box
         mask="#######"
         required
@@ -26,7 +24,6 @@
         label="Current amount saved"
         :rules="[rules.currentValue]"
         prefix="$"
-        placeholder="10"
         box
         mask="#######"
         required
@@ -37,7 +34,6 @@
         label="Amount promised"
         :rules="[rules.promiseValue]"
         prefix="$"
-        placeholder="50"
         box
         mask="#######"
         required
@@ -47,7 +43,6 @@
       <v-text-field
         label="Percentage allocated from each deposit"
         prefix="%"
-        placeholder="40"
         box
         mask="###"
         required
