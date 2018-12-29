@@ -3,23 +3,29 @@
     <v-toolbar dark color="primary">
       <v-toolbar-title>DigiPiggy</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn icon to="setup">
+      <v-btn icon to="settings">
         <v-icon>settings</v-icon>
       </v-btn>
     </v-toolbar>
     <v-card-text>
       <v-container fluid>
         <v-layout align-center justify-center row fill-height>
-          <div v-for="(goal, i) in enabledGoals" :key="i" class="text-xs-center mx-2">
-            <v-progress-circular
-              class="align-center"
-              :rotate="90"
-              :size="60"
-              :width="10"
-              :value="getGoalValue(i)"
-              :color="getGoalColor(i)"
-            ></v-progress-circular>
-            <p class="mt-1" style="max-width: 60px;">{{ goal.name }}</p>
+          <div v-if="enabledGoals.length">
+            <div v-for="(goal, i) in enabledGoals" :key="i" class="text-xs-center mx-2">
+              <v-progress-circular
+                class="align-center"
+                :rotate="90"
+                :size="60"
+                :width="10"
+                :value="getGoalValue(i)"
+                :color="getGoalColor(i)"
+              ></v-progress-circular>
+              <p class="mt-1" style="max-width: 60px;">{{ goal.name }}</p>
+            </div>
+          </div>
+          <div v-else>
+            <p>You don't have any enabled goals.</p>
+            <p>Click the gear in the upper right to configure your goals.</p>
           </div>
         </v-layout>
       </v-container>
@@ -34,7 +40,7 @@
         append-outer-icon="add_circle"
         @click:append-outer="onDeposit"
         @keyup.enter="onDeposit"
-        :disabled="busy"
+        :disabled="busy || !enabledGoals.length"
       ></v-text-field>
     </v-card-text>
   </v-card>
