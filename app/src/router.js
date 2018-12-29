@@ -40,10 +40,10 @@ const router = new Router({
 
 router.beforeEach((to, from, next) => {
   if (to.path === '/setup' || to.path === '/callback' || Auth.isAuthenticated()) {
-    return next();
+    next();
+  } else {
+    Auth.login();
   }
-
-  Auth.login();
 });
 
 export default router;

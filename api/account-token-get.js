@@ -22,11 +22,10 @@ module.exports = async (req, res) => {
       res.setHeader('Content-Type', 'application/json');
       res.setHeader('X-Content-Type-Options', 'nosniff');
       return res.end(JSON.stringify({ token: csrf.create(device.deviceId) }));
+    } else {
+      res.statusCode = 405;
+      return res.end();
     }
-
-    console.error('Invalid HTTP method');
-    res.statusCode = 405;
-    return res.end();
   } catch (err) {
     console.error(err);
     res.statusCode = 500;

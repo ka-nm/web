@@ -67,21 +67,20 @@ module.exports = async (req, res) => {
         })
       });
 
-      await shared.token.store(requestBody.email, custResponse.data.access_token, custResponse.data.refresh_token);
+      await shared.particle.storeUserAccessToken(
+        requestBody.email,
+        custResponse.data.access_token,
+        custResponse.data.refresh_token);
 
       const claimResponse = await axios.post(
         `${process.env.PARTICLE_PRODUCT_BASE_URL}/device_claims?access_token=${custResponse.data.access_token}`);
 
       res.setHeader('Content-Type', 'application/json');
-      return res.end(JSON.stringify({
-        accessToken: custResponse.data.access_token,
-        claimCode: claimResponse.data.claim_code
-      }));
+      return res.end(JSON.stringify({ claimCode: claimResponse.data.claim_code }));
+    } else {
+      res.statusCode = 405;
+      return res.end();
     }
-
-    console.error('Invalid HTTP method');
-    res.statusCode = 405;
-    return res.end();
   } catch (err) {
     console.error(err);
     res.statusCode = 500;

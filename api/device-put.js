@@ -49,10 +49,10 @@ module.exports = async (req, res) => {
 
       res.statusCode = 204;
       return res.end();
+    } else {
+      res.statusCode = 405;
+      return res.end();
     }
-
-    res.statusCode = 405;
-    return res.end();
   } catch (err) {
     console.error(err);
     res.statusCode = 500;

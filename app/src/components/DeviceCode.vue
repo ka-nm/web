@@ -45,9 +45,7 @@ export default {
   methods: {
     ...mapActions(['displayMessage']),
     async onSubmit() {
-      const temp = this.$refs.form.validate();
-      console.log(temp);
-      if (temp) {
+      if (this.$refs.form.validate()) {
         try {
           this.busy = true;
           try {

@@ -20,10 +20,10 @@ module.exports = async (req, res) => {
       res.setHeader('Content-Type', 'application/json');
       res.setHeader('X-Content-Type-Options', 'nosniff');
       return res.end(JSON.stringify(device));
+    } else {
+      res.statusCode = 405;
+      return res.end();
     }
-
-    res.statusCode = 405;
-    return res.end();
   } catch (err) {
     console.error(err);
     res.statusCode = 500;

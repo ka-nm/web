@@ -1,57 +1,77 @@
+import Vue from 'vue';
 import auth0 from 'auth0-js';
-import EventEmitter from 'eventemitter3';
+import axios from 'axios';
 import router from './router';
+
+const baseUrl = process.env.VUE_APP_API_BASE_URL || '';
 
 class AuthService {
   accessToken;
   idToken;
   expiresAt;
-  authenticated = this.isAuthenticated();
-  authNotifier = new EventEmitter();
+  email;
   auth0 = new auth0.WebAuth({
     domain: process.env.VUE_APP_AUTH0_DOMAIN,
     clientID: process.env.VUE_APP_AUTH0_CLIENT_ID,
     redirectUri: `${process.env.VUE_APP_AUTH0_REDIRECT_BASE_URL}/callback`,
-    responseType: 'token id_token',
-    scope: 'openid'
+    responseType: 'id_token',
+    scope: 'openid email'
   });
+
+  isAuthenticated() {
+    return new Date().getTime() < this.expiresAt && Vue.ls.get('isAuthenticated');
+  }
 
   login() {
     this.auth0.authorize();
   }
 
   handleAuthentication() {
-    this.auth0.parseHash((err, authResult) => {
-      if (authResult && authResult.accessToken && authResult.idToken) {
-        this.setSession(authResult);
-        router.replace({ name: 'home' });
-      } else if (err) {
-        router.replace({ name: 'home' });
-        console.log(err);
-        alert(`Error: ${err.error} - check the console for further details`)
-      }
+    return new Promise((resolve, reject) => {
+      this.auth0.parseHash((err, authResult) => {
+        if (err) {
+          return reject(err);
+        }
+
+        if (authResult && authResult.idToken) {
+          axios.get(`${baseUrl}/api/token`, {
+            headers: { Authorization: `Bearer ${authResult.idToken}` }
+          }).then(response => {
+            authResult.accessToken = response.data.token;
+            this.setSession(authResult);
+            resolve();
+          }).catch(err => reject(err));
+        }
+      });
     });
   }
 
   setSession(authResult) {
     this.accessToken = authResult.accessToken;
     this.idToken = authResult.idToken;
-    this.expiresAt = authResult.expiresIn * 1000 + new Date().getTime();
+    this.expiresAt = authResult.idTokenPayload.exp * 1000;
+    this.email = authResult.idTokenPayload.email;
 
-    this.authNotifier.emit('authChange', { authenticated: true });
-
-    localStorage.setItem('loggedIn', true);
+    Vue.ls.set('isAuthenticated', true);
   }
 
   renewSession() {
-    this.auth0.checkSession({}, (err, authResult) => {
-      if (authResult && authResult.accessToken && authResult.idToken) {
-        this.setSession(authResult);
-      } else if (err) {
-        this.logout();
-        console.log(err);
-        alert(`Could not get a new token (${err.error}: ${err.error_description})`);
-      }
+    return new Promise((resolve, reject) => {
+      this.auth0.checkSession({}, (err, authResult) => {
+        if (err) {
+          return reject(err);
+        }
+
+        if (authResult && authResult.idToken) {
+          this.$http.get(`${baseUrl}/api/token`, {
+            headers: { Authorization: `Bearer ${authResult.idToken}` }
+          }).then(response => {
+            authResult.accessToken = response.data.token;
+            this.setSession(authResult);
+            resolve();
+          }).catch(err => reject(err));
+        }
+      });
     });
   }
 
@@ -60,15 +80,8 @@ class AuthService {
     this.idToken = null;
     this.expiresAt = null;
 
-    this.userProfile = null;
-    this.authNotifier.emit('authChange', false);
-
-    localStorage.removeItem('loggedIn');
+    Vue.ls.remove('isAuthenticated');
     router.replace({ name: 'home' });
-  }
-
-  isAuthenticated() {
-    return new Date().getTime() < this.expiresAt && localStorage.getItem('loggedIn') === 'true';
   }
 }
 

@@ -26,9 +26,6 @@ module.exports = {
       res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
     }
   },
-  token: {
-    store: storeClientToken
-  },
   auth0: {
     getAccessToken: async () => {
       const response = await db.getItem({
@@ -55,23 +52,27 @@ module.exports = {
         }
       });
 
-      await storeClientToken(process.env.AUTH0_CLIENT_ID, tokenResponse.data.access_token, null);
+      await storeToken(process.env.AUTH0_CLIENT_ID, tokenResponse.data.access_token, null);
       console.log('%s: new token issued', process.env.AUTH0_CLIENT_ID);
       return tokenResponse.data.access_token;
     }
   },
   particle: {
-    getAccessToken: async () => {
+    storeUserAccessToken: (email, accessToken, refreshToken) => {
+      return storeToken(email, accessToken, refreshToken);
+    },
+    getAccessToken: async email => {
+      const id = email || process.env.DIGIPIGGY_CLIENT_ID;
       const response = await db.getItem({
         TableName: 'tokens',
-        Key: { clientId: { S: process.env.DIGIPIGGY_CLIENT_ID } }
+        Key: { clientId: { S: id } }
       }).promise();
 
       if (response.Item) {
-        const clientToken = marshaller.unmarshallItem(response.Item);
-        if (clientToken.expires > Date.now()) {
-          console.log('%s: token valid', process.env.DIGIPIGGY_CLIENT_ID);
-          return clientToken.accessToken;
+        const token = marshaller.unmarshallItem(response.Item);
+        if (token.expires > Date.now()) {
+          console.log('%s: token valid', id);
+          return token.accessToken;
         }
 
         const refreshTokenResponse = await axios({
@@ -82,19 +83,28 @@ module.exports = {
             password: process.env.DIGIPIGGY_CLIENT_SECRET,
           },
           data: querystring.stringify({
-            grant_type: 'client_credentials',
-            expires_in: 86400
+            grant_type: 'refresh_token',
+            refresh_token: token.refreshToken
           })
         });
 
-        await storeClientToken(
-          process.env.DIGIPIGGY_CLIENT_ID,
+        await storeToken(
+          id,
           refreshTokenResponse.data.access_token,
           refreshTokenResponse.data.refresh_token);
 
-        console.log('%s: token refresh', process.env.DIGIPIGGY_CLIENT_ID);
+        console.log('%s: token refresh', id);
         return refreshTokenResponse.data.access_token;
       } else {
+        const params = {
+          grant_type: 'client_credentials',
+          expires_in: 86400
+        };
+
+        if (email) {
+          params.scope = `scope=customer=${email}`;
+        }
+
         const tokenResponse = await axios({
           method: 'post',
           url: 'https://api.particle.io/oauth/token',
@@ -102,18 +112,15 @@ module.exports = {
             username: process.env.DIGIPIGGY_CLIENT_ID,
             password: process.env.DIGIPIGGY_CLIENT_SECRET,
           },
-          data: querystring.stringify({
-            grant_type: 'client_credentials',
-            expires_in: 86400
-          })
+          data: querystring.stringify(params)
         });
 
-        await storeClientToken(
-          process.env.DIGIPIGGY_CLIENT_ID,
+        await storeToken(
+          id,
           tokenResponse.data.access_token,
           tokenResponse.data.refresh_token);
 
-        console.log('%s: new token issued', process.env.DIGIPIGGY_CLIENT_ID);
+        console.log('%s: new token issued', id);
         return tokenResponse.data.access_token;
       }
     },
@@ -185,12 +192,12 @@ module.exports = {
   }
 };
 
-async function storeClientToken(clientId, accessToken, refreshToken) {
+async function storeToken(id, accessToken, refreshToken) {
   const expires = Date.now() + (82800 * 1000); // 23hrs
   await db.putItem({
     TableName: 'tokens',
     Item: marshaller.marshallItem({
-      clientId,
+      clientId: id,
       accessToken,
       refreshToken,
       expires

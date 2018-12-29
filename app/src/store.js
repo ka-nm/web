@@ -61,19 +61,10 @@ export default new Vuex.Store({
         return false;
       }
     },
-    async updateGoalTotals({ state, commit }, deposits) {
+    async updateGoalTotals({ state, dispatch }, deposits) {
       const updatedDevice = cloneDevice(state.device);
       updatedDevice.goals.forEach((d, i) => d.current += deposits[i]);
-
-      try {
-        await axios.put(`${state.baseUrl}/api/device/${updatedDevice.deviceId}`, updatedDevice);
-        Vue.ls.set('device', updatedDevice);
-        commit('setDevice', updatedDevice);
-        return true;
-      } catch (err) {
-        console.error(err);
-        return false;
-      }
+      return await dispatch('storeDevice', updatedDevice);
     }
   }
 })

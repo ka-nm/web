@@ -19,6 +19,10 @@
       "use": "@now/static-build"
     },
     {
+      "src": "api/token-get.js",
+      "use": "@now/node"
+    },
+    {
       "src": "api/account-token-get.js",
       "use": "@now/node"
     },
