@@ -23,21 +23,12 @@
 
         <v-stepper-step :complete="step > 3" step="3">
           Wi-Fi
-          <small>Connect to your local network</small>
+          <small>Connect your device to your local network</small>
         </v-stepper-step>
         <v-stepper-content step="3">
-          <wifi :claimCode="claimCode" @continue="step = 4"/>
-        </v-stepper-content>
-
-        <v-stepper-step step="4">
-          Finish
-          <small>Complete the setup of your device</small>
-        </v-stepper-step>
-        <v-stepper-content step="4">
-          <p>Congratulations - device setup is complete!</p>
-          <p>You'll now be asked to login so you can interact with your device.</p>
-          <v-btn color="primary" @click="onFinish">Finish
-            <v-icon right dark>check</v-icon>
+          <p>Click the button below to be taken to a site that will allow you to setup your WiFi.</p>
+          <v-btn color="primary" @click="onRedirectToWifi">Continue
+            <v-icon right dark>arrow_forward</v-icon>
           </v-btn>
         </v-stepper-content>
       </v-stepper>
@@ -48,13 +39,11 @@
 <script>
 import DeviceCode from '@/components/DeviceCode';
 import Account from '@/components/Account';
-import WiFi from '@/components/WiFi';
 
 export default {
   components: {
     deviceCode: DeviceCode,
-    account: Account,
-    wifi: WiFi
+    account: Account
   },
   data() {
     return {
@@ -72,8 +61,8 @@ export default {
       this.claimCode = code;
       this.step = 3;
     },
-    onFinish() {
-      this.$router.replace({ name: 'home' });
+    onRedirectToWifi() {
+      window.location = `${process.env.VUE_APP_WIFI_REDIRECT_URL}?code=${this.claimCode}`;
     }
   }
 };
