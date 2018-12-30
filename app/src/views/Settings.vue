@@ -4,7 +4,7 @@
       <v-toolbar-title>Goals</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn icon to="/">
-        <v-icon>keyboard_backspace</v-icon>
+        <v-icon>arrow_back</v-icon>
       </v-btn>
     </v-toolbar>
     <v-card-text class="grey lighten-5">

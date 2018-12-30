@@ -48,9 +48,9 @@ module.exports = async (req, res) => {
         data: {
           connection: 'Username-Password-Authentication',
           email: requestBody.email,
-          password: requestBody.password,
-          email_verified: true,
-          verify_email: false
+          password: requestBody.password
+          // email_verified: true,
+          // verify_email: false
         }
       });
 

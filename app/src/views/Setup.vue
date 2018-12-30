@@ -31,6 +31,18 @@
             <v-icon right dark>arrow_forward</v-icon>
           </v-btn>
         </v-stepper-content>
+
+        <v-stepper-step step="4">
+          Finish
+          <small>Complete the setup of your device</small>
+        </v-stepper-step>
+        <v-stepper-content step="4">
+          <p>Congratulations - device setup is complete!</p>
+          <p>You'll now be asked to login so you can interact with your device.</p>
+          <v-btn color="primary" to="home">Finish
+            <v-icon right dark>check</v-icon>
+          </v-btn>
+        </v-stepper-content>
       </v-stepper>
     </v-card-text>
   </v-card>
@@ -62,7 +74,13 @@ export default {
       this.step = 3;
     },
     onRedirectToWifi() {
-      window.location = `${process.env.VUE_APP_WIFI_REDIRECT_URL}?code=${this.claimCode}`;
+      window.location = `${process.env.VUE_APP_WIFI_REDIRECT_URL}#code=${encodeURIComponent(this.claimCode)}`;
+    }
+  },
+  mounted() {
+    const hash = (window.location.hash || '').replace(/^#?\/?/, '');
+    if (hash === 'finish') {
+      this.$nextTick(() => (this.step = 4));
     }
   }
 };

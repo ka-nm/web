@@ -9,6 +9,9 @@
               <v-toolbar dark color="primary">
                 <v-toolbar-title>WiFi Setup</v-toolbar-title>
               </v-toolbar>
+              <v-layout align-center justify-center row class="my-3" v-show="busy">
+                <loader color="#1976d2"/>
+              </v-layout>
               <v-card-text>
                 <p>
                   Connect to the network that begins with
@@ -42,7 +45,7 @@
                   v-model="password"
                   :disabled="busy"
                 ></v-text-field>
-                <v-btn color="primary" @click="onContinue" :disabled="busy">
+                <v-btn color="primary" @click="onContinue" :disabled="busy || !claimCode">
                   {{ continueButtonText }}
                   <v-icon v-show="networks.length" right dark>refresh</v-icon>
                 </v-btn>
@@ -60,27 +63,36 @@
         </v-layout>
       </v-container>
     </v-content>
+    <v-snackbar v-model="notification" :multi-line="true" :timeout="3000">
+      {{ notificationText }}
+      <v-btn flat :color="notificationColor" @click="notification = false">Close</v-btn>
+    </v-snackbar>
   </v-app>
 </template>
 
 <script>
-//import { mapActions } from 'vuex';
+import { PropagateLoader } from '@saeris/vue-spinners';
 import pify from 'pify';
+import qs from 'qs';
 import SoftAPSetup from 'softap-setup';
 
 const sap = pify(new SoftAPSetup({ protocol: 'http' }));
 
 export default {
-  props: {
-    claimCode: String
+  components: {
+    loader: PropagateLoader
   },
   data() {
     return {
       busy: false,
+      claimCode: null,
       networks: [],
       selectedNetwork: -1,
       showPassword: false,
-      password: null
+      password: null,
+      notification: false,
+      notificationText: '',
+      notificationColor: 'info'
     };
   },
   computed: {
@@ -89,7 +101,6 @@ export default {
     }
   },
   methods: {
-    //...mapActions(['displayMessage']),
     wifiStrengthIcon(index) {
       const network = this.networks[index];
       if (network.rssi <= -90) {
@@ -118,6 +129,7 @@ export default {
       const network = this.networks[this.selectedNetwork];
       try {
         this.busy = true;
+        console.log(this.claimCode);
         await sap.setClaimCode(this.claimCode);
         await sap.publicKey();
         await sap.configure({
@@ -128,27 +140,56 @@ export default {
         });
 
         await sap.connect();
-        // TODO: need to check with particle to see if device registered successfully
-        this.$emit('continue');
+        await new Promise(resolve =>
+          setTimeout(() => {
+            resolve();
+            window.location = `${process.env.VUE_APP_WIFI_REDIRECT_URL}/setup#finish`;
+          }, 20000)
+        );
       } catch (err) {
-        console.error(err);
-        //this.displayMessage({ text: 'Failed to connect to WiFi network', color: 'error' });
+        this.handleError(err, 'Failed to connect to WiFi network');
       } finally {
         this.busy = false;
       }
     },
     async onContinue() {
       this.networks = [];
-      const found = await sap.scan();
-      found.forEach(f => {
-        this.networks.push({
-          ssid: f.ssid,
-          security: f.sec,
-          channel: f.ch,
-          rssi: f.rssi
+      this.showPassword = false;
+      try {
+        const found = await sap.scan();
+        found.forEach(f => {
+          this.networks.push({
+            ssid: f.ssid,
+            security: f.sec,
+            channel: f.ch,
+            rssi: f.rssi
+          });
         });
-      });
+      } catch (err) {
+        this.handleError(err, 'Unable to locate any valid WiFi networks');
+      }
+    },
+    handleError(err, message) {
+      if (err) {
+        console.error(err);
+      }
+
+      this.notificationText = message;
+      this.notificationColor = 'error';
+      this.notification = true;
     }
+  },
+  mounted() {
+    const hash = (window.location.hash || '').replace(/^#?\/?/, '');
+    if (hash) {
+      const params = qs.parse(hash);
+      if (params.code) {
+        this.claimCode = decodeURIComponent(params.code);
+        return;
+      }
+    }
+
+    this.handleError(null, 'No claim code provided');
   }
 };
 </script>
