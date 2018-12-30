@@ -104,7 +104,7 @@
       "dest": "/app/touch-icon-iphone-retina.png"
     },
     {
-      "src": "/(?<file>(css|js|img)/.*)",
+      "src": "/(?<file>(css|fonts|js|img)/.*)",
       "dest": "/app/$file"
     },
     {
