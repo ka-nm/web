@@ -54,7 +54,7 @@ export default new Vuex.Store({
       try {
         const updatedDevice = cloneDevice(state.device);
         updatedDevice.goals.length = 0;
-        device.goals.forEach(g => updatedDevice.push(g));
+        device.goals.forEach(g => updatedDevice.goals.push(g));
 
         await axios.put(`${state.baseUrl}/api/device/${device.deviceId}`, device);
         Vue.ls.set('device', device);
