@@ -59,10 +59,8 @@ module.exports = {
 
       if (response.Item) {
         const clientToken = marshaller.unmarshallItem(response.Item);
-        if (clientToken.expires > Date.now()) {
-          console.log('%s: token valid', process.env.AUTH0_CLIENT_ID);
-          return clientToken.accessToken;
-        }
+        console.log('%s: token valid', process.env.AUTH0_CLIENT_ID);
+        return clientToken.accessToken;
       }
 
       const tokenResponse = await axios({
