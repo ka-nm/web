@@ -1,5 +1,6 @@
 <template>
   <v-app id="app">
+    <v-icon class="offscreen">lock</v-icon>
     <v-content>
       <v-container fluid>
         <v-layout align-center justify-center>
@@ -193,3 +194,10 @@ export default {
   }
 };
 </script>
+
+<style>
+.offscreen {
+  position: absolute;
+  top: -1000px;
+}
+</style>
