@@ -67,10 +67,7 @@ module.exports = async (req, res) => {
         })
       });
 
-      await shared.particle.storeUserAccessToken(
-        requestBody.email,
-        custResponse.data.access_token,
-        custResponse.data.refresh_token);
+      await shared.particle.storeUserAccessToken(requestBody.email, custResponse.data.access_token);
 
       const claimResponse = await axios.post(
         `${process.env.PARTICLE_PRODUCT_BASE_URL}/device_claims?access_token=${custResponse.data.access_token}`);

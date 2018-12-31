@@ -76,14 +76,14 @@ module.exports = {
         }
       });
 
-      await storeToken(process.env.AUTH0_CLIENT_ID, tokenResponse.data.access_token, null);
+      await storeToken(process.env.AUTH0_CLIENT_ID, tokenResponse.data.access_token);
       console.log('%s: new token issued', process.env.AUTH0_CLIENT_ID);
       return tokenResponse.data.access_token;
     }
   },
   particle: {
-    storeUserAccessToken: (email, accessToken, refreshToken) => {
-      return storeToken(email, accessToken, refreshToken);
+    storeUserAccessToken: (email, accessToken) => {
+      return storeToken(email, accessToken);
     },
     getAccessToken: async email => {
       const id = email || process.env.DIGIPIGGY_CLIENT_ID;
@@ -99,27 +99,6 @@ module.exports = {
           return token.accessToken;
         }
 
-        const refreshTokenResponse = await axios({
-          method: 'post',
-          url: 'https://api.particle.io/oauth/token',
-          auth: {
-            username: process.env.DIGIPIGGY_CLIENT_ID,
-            password: process.env.DIGIPIGGY_CLIENT_SECRET,
-          },
-          data: querystring.stringify({
-            grant_type: 'refresh_token',
-            refresh_token: token.refreshToken
-          })
-        });
-
-        await storeToken(
-          id,
-          refreshTokenResponse.data.access_token,
-          refreshTokenResponse.data.refresh_token);
-
-        console.log('%s: token refresh', id);
-        return refreshTokenResponse.data.access_token;
-      } else {
         const params = {
           grant_type: 'client_credentials',
           expires_in: 86400
@@ -139,10 +118,7 @@ module.exports = {
           data: querystring.stringify(params)
         });
 
-        await storeToken(
-          id,
-          tokenResponse.data.access_token,
-          tokenResponse.data.refresh_token);
+        await storeToken(id, tokenResponse.data.access_token);
 
         console.log('%s: new token issued', id);
         return tokenResponse.data.access_token;
@@ -223,14 +199,13 @@ function getJwksKey(header, callback) {
   });
 }
 
-async function storeToken(id, accessToken, refreshToken) {
-  const expires = Date.now() + (82800 * 1000); // 23hrs
+async function storeToken(id, accessToken) {
+  const expires = Math.floor(Date.now() / 1000) + 82800; // 23hrs
   await db.putItem({
     TableName: 'tokens',
     Item: marshaller.marshallItem({
       clientId: id,
       accessToken,
-      refreshToken,
       expires
     })
   }).promise();
