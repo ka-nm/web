@@ -10,6 +10,12 @@ module.exports = async (req, res) => {
       res.setHeader('Content-Length', '0');
       return res.end();
     } else if (req.method === 'GET') {
+      const jwtPayload = await shared.auth0.validateJwt(req);
+      if (!jwtPayload) {
+        res.statusCode = 401;
+        return res.end('Unauthorized');
+      }
+
       const { query } = parse(req.url, true);
       const device = await shared.device.getById(query.deviceId);
       if (!device) {

@@ -29,7 +29,7 @@ export default {
       if (!deviceResponse.data.length || !(await this.loadDevice(deviceResponse.data[0].id))) {
         this.displayMessage({ text: 'Failed to load device', color: 'error' });
       }
-
+      
       this.$router.replace({ name: 'home' });
     } catch (err) {
       console.error(err);

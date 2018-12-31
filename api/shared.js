@@ -1,3 +1,6 @@
+const pify = require('pify');
+const jwks = require('jwks-rsa');
+const jwt = require('jsonwebtoken');
 const axios = require('axios');
 const querystring = require('querystring');
 const PromiseThrottle = require('promise-throttle');
@@ -14,6 +17,12 @@ const db = new DynamoDb({
   }
 });
 
+const jwtVerify = pify(jwt.verify);
+const jwksClient = jwks({
+  cache: true,
+  jwksUri: `${process.env.AUTH0_BASE_URL}/.well-known/jwks.json`
+});
+
 module.exports = {
   dynamo: {
     db,
@@ -27,6 +36,21 @@ module.exports = {
     }
   },
   auth0: {
+    validateJwt: async req => {
+      if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
+        return false;
+      }
+
+      const token = req.headers.authorization.split(' ')[1];
+      try {
+        return await jwtVerify(token, getJwksKey);
+      } catch (err) {
+        console.error(err);
+        if (err instanceof jwt.TokenExpiredError || err instanceof jwt.JsonWebTokenError) {
+          return false;
+        }
+      }
+    },
     getAccessToken: async () => {
       const response = await db.getItem({
         TableName: 'tokens',
@@ -191,6 +215,13 @@ module.exports = {
     }
   }
 };
+
+function getJwksKey(header, callback) {
+  jwksClient.getSigningKey(header.kid, function (err, key) {
+    var signingKey = key.publicKey || key.rsaPublicKey;
+    callback(null, signingKey);
+  });
+}
 
 async function storeToken(id, accessToken, refreshToken) {
   const expires = Date.now() + (82800 * 1000); // 23hrs

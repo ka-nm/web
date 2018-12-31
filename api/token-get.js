@@ -1,14 +1,4 @@
-const pify = require('pify');
-const jwks = require('jwks-rsa');
-const jwt = require('jsonwebtoken');
 const shared = require('./shared');
-
-const jwksClient = jwks({
-  cache: true,
-  jwksUri: `${process.env.AUTH0_BASE_URL}/.well-known/jwks.json`
-});
-
-const jwtVerify = pify(jwt.verify);
 
 module.exports = async (req, res) => {
   try {
@@ -19,15 +9,13 @@ module.exports = async (req, res) => {
       res.setHeader('Content-Length', '0');
       return res.end();
     } else if (req.method === 'GET') {
-      if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
+      const jwtPayload = await shared.auth0.validateJwt(req);
+      if (!jwtPayload) {
         res.statusCode = 401;
         return res.end('Unauthorized');
       }
 
-      const token = req.headers.authorization.split(' ')[1];
-      const decoded = await jwtVerify(token, getKey);
-      const accessToken = await shared.particle.getAccessToken(decoded.email);
-
+      const accessToken = await shared.particle.getAccessToken(jwtPayload.email);
       res.setHeader('Content-Type', 'application/json');
       res.setHeader('X-Content-Type-Options', 'nosniff');
       return res.end(JSON.stringify({ token: accessToken }));
@@ -36,20 +24,7 @@ module.exports = async (req, res) => {
       return res.end();
     }
   } catch (err) {
-    console.error(err);
-    if (err instanceof jwt.TokenExpiredError || err instanceof jwt.JsonWebTokenError) {
-      res.statusCode = 401;
-      return res.end('Unauthorized');
-    }
-
     res.statusCode = 500;
     return res.end('Unexpected Error');
   }
 };
-
-function getKey(header, callback) {
-  jwksClient.getSigningKey(header.kid, function (err, key) {
-    var signingKey = key.publicKey || key.rsaPublicKey;
-    callback(null, signingKey);
-  });
-}

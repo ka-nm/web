@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import axios from 'axios';
+import Auth from './auth';
 
 const cloneDevice = device => JSON.parse(JSON.stringify(device));
 
@@ -28,20 +29,18 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    initialize({ commit, dispatch }) {
-      const device = Vue.ls.get('device');
-      if (device) {
-        commit('setDevice', device);
-        dispatch('loadDevice', device.deviceId);
-      }
-    },
     displayMessage({ commit }, options) {
       commit('setMessage', options);
       setTimeout(() => commit('setMessage', { text: null, color: null }), 0);
     },
     async loadDevice({ state, commit }, deviceId) {
       try {
-        const response = await axios.get(`${state.baseUrl}/api/device/${deviceId}`);
+        const response = await axios.get(`${state.baseUrl}/api/device/${deviceId}`, {
+          headers: {
+            Authorization: `Bearer ${Auth.idToken}`
+          }
+        });
+
         Vue.ls.set('device', response.data);
         commit('setDevice', response.data);
         return true;

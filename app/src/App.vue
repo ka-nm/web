@@ -63,9 +63,6 @@ export default {
   },
   methods: {
     ...mapActions(['initialize'])
-  },
-  created() {
-    this.initialize();
   }
 };
 </script>
