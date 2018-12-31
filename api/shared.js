@@ -94,86 +94,85 @@ module.exports = {
 
       if (response.Item) {
         const token = marshaller.unmarshallItem(response.Item);
-        if (token.expires > Date.now()) {
-          console.log('%s: token valid', id);
-          return token.accessToken;
-        }
-
-        const params = {
-          grant_type: 'client_credentials',
-          expires_in: 86400
-        };
-
-        if (email) {
-          params.scope = `scope=customer=${email}`;
-        }
-
-        const tokenResponse = await axios({
-          method: 'post',
-          url: 'https://api.particle.io/oauth/token',
-          auth: {
-            username: process.env.DIGIPIGGY_CLIENT_ID,
-            password: process.env.DIGIPIGGY_CLIENT_SECRET,
-          },
-          data: querystring.stringify(params)
-        });
-
-        await storeToken(id, tokenResponse.data.access_token);
-
-        console.log('%s: new token issued', id);
-        return tokenResponse.data.access_token;
+        console.log('%s: token valid', id);
+        return token.accessToken;
       }
-    },
-    updateDevice: async (accessToken, device) => {
-      const requests = [];
-      const throttle = new PromiseThrottle({ requestsPerSecond: 2, promiseImplementation: Promise });
-      const baseOptions = {
-        private: true,
-        ttl: 86400, // 24hrs
-        access_token: accessToken
+
+      const params = {
+        grant_type: 'client_credentials',
+        expires_in: 86400
       };
 
-      requests.push(throttle.add(
-        () => axios.post(
-          `${process.env.PARTICLE_PRODUCT_BASE_URL}/events`,
-          querystring.stringify(Object.assign({}, baseOptions, {
-            name: `${device.deviceId}/toggle`,
-            data: device.goals.map(g => g.enabled ? 1 : 0).join('|')
-          })))
-      ));
+      if (email) {
+        params.scope = `scope=customer=${email}`;
+      }
 
-      requests.push(throttle.add(
-        () => axios.post(
-          `${process.env.PARTICLE_PRODUCT_BASE_URL}/events`,
-          querystring.stringify(Object.assign({}, baseOptions, {
-            name: `${device.deviceId}/color`,
-            data: device.goals.map(g => g.color).join('|')
-          })))
-      ));
+      const tokenResponse = await axios({
+        method: 'post',
+        url: 'https://api.particle.io/oauth/token',
+        auth: {
+          username: process.env.DIGIPIGGY_CLIENT_ID,
+          password: process.env.DIGIPIGGY_CLIENT_SECRET,
+        },
+        data: querystring.stringify(params)
+      });
 
-      requests.push(throttle.add(
-        () => axios.post(
-          `${process.env.PARTICLE_PRODUCT_BASE_URL}/events`,
-          querystring.stringify(Object.assign({}, baseOptions, {
-            name: `${device.deviceId}/update`,
-            data: device.goals
-              .map(g => `${g.total > 0 ? (g.current / g.total).toFixed(2) : '0.00'},${g.total > 0 ? (g.promise / g.total).toFixed(2) : '0.00'}`)
-              .join('|')
-          })))
-      ));
+      await storeToken(id, tokenResponse.data.access_token);
 
-      await Promise.all(requests);
+      console.log('%s: new token issued', id);
+      return tokenResponse.data.access_token;
     }
   },
-  device: {
-    getById: async deviceId => {
-      const data = await db.getItem({
-        TableName: 'devices',
-        Key: { deviceId: { S: deviceId } }
-      }).promise();
+  updateDevice: async (accessToken, device) => {
+    const requests = [];
+    const throttle = new PromiseThrottle({ requestsPerSecond: 2, promiseImplementation: Promise });
+    const baseOptions = {
+      private: true,
+      ttl: 86400, // 24hrs
+      access_token: accessToken
+    };
 
-      return data.Item ? marshaller.unmarshallItem(data.Item) : null;
-    },
+    requests.push(throttle.add(
+      () => axios.post(
+        `${process.env.PARTICLE_PRODUCT_BASE_URL}/events`,
+        querystring.stringify(Object.assign({}, baseOptions, {
+          name: `${device.deviceId}/toggle`,
+          data: device.goals.map(g => g.enabled ? 1 : 0).join('|')
+        })))
+    ));
+
+    requests.push(throttle.add(
+      () => axios.post(
+        `${process.env.PARTICLE_PRODUCT_BASE_URL}/events`,
+        querystring.stringify(Object.assign({}, baseOptions, {
+          name: `${device.deviceId}/color`,
+          data: device.goals.map(g => g.color).join('|')
+        })))
+    ));
+
+    requests.push(throttle.add(
+      () => axios.post(
+        `${process.env.PARTICLE_PRODUCT_BASE_URL}/events`,
+        querystring.stringify(Object.assign({}, baseOptions, {
+          name: `${device.deviceId}/update`,
+          data: device.goals
+            .map(g => `${g.total > 0 ? (g.current / g.total).toFixed(2) : '0.00'},${g.total > 0 ? (g.promise / g.total).toFixed(2) : '0.00'}`)
+            .join('|')
+        })))
+    ));
+
+    await Promise.all(requests);
+  }
+},
+  device: {
+  getById: async deviceId => {
+    const data = await db.getItem({
+      TableName: 'devices',
+      Key: { deviceId: { S: deviceId } }
+    }).promise();
+
+    return data.Item ? marshaller.unmarshallItem(data.Item) : null;
+  },
     getByCode: async deviceCode => {
       const data = await db.query({
         ExpressionAttributeValues: {
@@ -189,7 +188,7 @@ module.exports = {
 
       return data.Items.length ? marshaller.unmarshallItem(data.Items[0]) : null;
     }
-  }
+}
 };
 
 function getJwksKey(header, callback) {
