@@ -24,6 +24,7 @@ module.exports = async (req, res) => {
       return res.end();
     }
   } catch (err) {
+    console.error(err);
     res.statusCode = 500;
     return res.end('Unexpected Error');
   }

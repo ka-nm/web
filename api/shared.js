@@ -102,7 +102,7 @@ module.exports = {
       };
 
       if (email) {
-        params.scope = `scope=customer=${email}`;
+        params.scope = `customer=${email}`;
       }
 
       const tokenResponse = await axios({
