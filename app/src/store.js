@@ -16,6 +16,7 @@ export default new Vuex.Store({
     },
     device: {
       deviceId: null,
+      deviceCode: null,
       goals: []
     }
   },
@@ -56,8 +57,8 @@ export default new Vuex.Store({
         device.goals.forEach(g => updatedDevice.goals.push(g));
 
         await axios.put(`${state.baseUrl}/api/device/${device.deviceId}`, updatedDevice);
-        Vue.ls.set('device', device);
-        commit('setDevice', device);
+        Vue.ls.set('device', updatedDevice);
+        commit('setDevice', updatedDevice);
         return true;
       } catch (err) {
         console.error(err);

@@ -10,20 +10,18 @@
     <v-card-text>
       <v-container fluid>
         <v-layout align-center justify-center row fill-height>
-          <div v-if="enabledGoals.length">
-            <div v-for="(goal, i) in enabledGoals" :key="i" class="text-xs-center mx-2">
-              <v-progress-circular
-                class="align-center"
-                :rotate="90"
-                :size="60"
-                :width="10"
-                :value="getGoalValue(i)"
-                :color="getGoalColor(i)"
-              ></v-progress-circular>
-              <p class="mt-1" style="max-width: 60px;">{{ goal.name }}</p>
-            </div>
+          <div v-for="(goal, i) in enabledGoals" :key="i" class="text-xs-center mx-2">
+            <v-progress-circular
+              class="align-center"
+              :rotate="90"
+              :size="60"
+              :width="10"
+              :value="getGoalValue(i)"
+              :color="getGoalColor(i)"
+            ></v-progress-circular>
+            <p class="mt-1" style="max-width: 60px;">{{ goal.name }}</p>
           </div>
-          <div v-else>
+          <div v-if="!enabledGoals.length">
             <p>You don't have any enabled goals.</p>
             <p>Click the gear in the upper right to configure your goals.</p>
           </div>
@@ -68,11 +66,11 @@ export default {
       return this.device.goals[index].name;
     },
     getGoalValue(index) {
-      const data = this.device.goals[index];
+      const data = this.enabledGoals[index];
       return (data.current / data.total) * 100;
     },
     getGoalColor(index) {
-      const goals = this.device.goals[index];
+      const goals = this.enabledGoals[index];
       return this.$color(goals.color);
     },
     async onDeposit() {

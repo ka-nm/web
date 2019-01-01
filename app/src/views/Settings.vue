@@ -67,16 +67,19 @@ export default {
       this.allGoalsValid = this.valid.every(x => x);
     },
     onPercentage() {
-      const total = this.goals
-        .filter(g => g.enabled)
-        .reduce((sum, goal) => +goal.percentage + sum, 0);
-
-      this.totalPercentageValid = total === 100;
+      const enabledGoals = this.goals.filter(g => g.enabled);
+      if (!enabledGoals.length) {
+        this.totalPercentageValid = true;
+      } else {
+        const total = enabledGoals.reduce((sum, goal) => +goal.percentage + sum, 0);
+        this.totalPercentageValid = total === 100;
+      }
     },
     async onSave() {
       this.busy = true;
       const device = {
         deviceId: this.device.deviceId,
+        deviceCode: this.device.deviceCode,
         goals: this.goals.map(g => {
           return {
             name: g.name,
