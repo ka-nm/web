@@ -79,9 +79,7 @@ module.exports = {
     }
   },
   particle: {
-    storeUserAccessToken: (email, accessToken) => {
-      return storeToken(email, accessToken);
-    },
+    storeUserAccessToken: (email, accessToken) => storeToken(email, accessToken),
     getAccessToken: async email => {
       const id = email || process.env.DIGIPIGGY_CLIENT_ID;
       const response = await db.getItem({

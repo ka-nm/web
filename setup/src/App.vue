@@ -10,8 +10,8 @@
               <v-toolbar dark color="primary">
                 <v-toolbar-title>WiFi Setup</v-toolbar-title>
               </v-toolbar>
-              <v-layout align-center justify-center row class="my-3" v-show="busy">
-                <loader color="#1976d2"/>
+              <v-layout align-center justify-center row v-show="busy">
+                <loader color="#1976d2" class="my-3"/>
               </v-layout>
               <v-card-text>
                 <p>

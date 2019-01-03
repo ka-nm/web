@@ -5,6 +5,7 @@ import qs from 'qs';
 import Auth from './auth';
 
 const cloneDevice = device => JSON.parse(JSON.stringify(device));
+const coalesce = (total, value) => total > 0 ? (value / total).toFixed(2) : '0.00';
 
 Vue.use(Vuex);
 
@@ -38,9 +39,7 @@ export default new Vuex.Store({
     async loadDevice({ state, commit }, deviceId) {
       try {
         const response = await axios.get(`${state.baseUrl}/api/device/${deviceId}`, {
-          headers: {
-            Authorization: `Bearer ${Auth.idToken}`
-          }
+          headers: { Authorization: `Bearer ${Auth.idToken}` }
         });
 
         Vue.ls.set('device', response.data);
@@ -75,7 +74,10 @@ export default new Vuex.Store({
       }
 
       try {
-        await axios.put(`${state.baseUrl}/api/device/${state.device.deviceId}`, device);
+        await axios.put(`${state.baseUrl}/api/device/${state.device.deviceId}`, device, {
+          headers: { Authorization: `Bearer ${Auth.idToken}` }
+        });
+
       } catch (err) {
         console.error(err);
         return false;
@@ -110,7 +112,10 @@ export default new Vuex.Store({
       });
 
       try {
-        await axios.put(`${state.baseUrl}/api/device/${state.device.deviceId}`, updatedDevice);
+        await axios.put(`${state.baseUrl}/api/device/${state.device.deviceId}`, updatedDevice, {
+          headers: { Authorization: `Bearer ${Auth.idToken}` }
+        });
+
       } catch (err) {
         console.error(err);
         return false;
@@ -238,7 +243,3 @@ export default new Vuex.Store({
     }
   }
 })
-
-function coalesce(total, value) {
-  return total > 0 ? (value / total).toFixed(2) : '0.00';
-}

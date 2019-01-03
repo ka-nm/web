@@ -29,6 +29,7 @@ module.exports = async (req, res) => {
         return res.end(JSON.stringify(result.error.details.map(d => d.message)));
       }
 
+      // validate device code and token
       const device = await shared.device.getByCode(requestBody.deviceCode);
       if (!device) {
         res.statusCode = 404;
@@ -40,7 +41,23 @@ module.exports = async (req, res) => {
         return res.end('Forbidden');
       }
 
+      // validate Auth0 account
       const auth0Token = await shared.auth0.getAccessToken();
+      const userResponse = await axios.get(`${process.env.AUTH0_BASE_URL}/api/v2/users-by-email`, {
+        headers: { Authorization: `Bearer ${auth0Token}` },
+        params: {
+          email: requestBody.email,
+          fields: 'user_id'
+        }
+      });
+
+      if (userResponse.data.length) {
+        console.log('Auth0 account already exists for %s', requestBody.email);
+        res.statusCode = 409;
+        return res.end('Account Exists');
+      }
+
+      // create Auth0 / Particle accounts and generate device claim code
       await axios({
         method: 'post',
         url: `${process.env.AUTH0_BASE_URL}/api/v2/users`,
@@ -49,8 +66,6 @@ module.exports = async (req, res) => {
           connection: 'Username-Password-Authentication',
           email: requestBody.email,
           password: requestBody.password
-          // email_verified: true,
-          // verify_email: false
         }
       });
 
@@ -69,8 +84,9 @@ module.exports = async (req, res) => {
 
       await shared.particle.storeUserAccessToken(requestBody.email, custResponse.data.access_token);
 
-      const claimResponse = await axios.post(
-        `${process.env.PARTICLE_PRODUCT_BASE_URL}/device_claims?access_token=${custResponse.data.access_token}`);
+      const claimResponse = await axios.post(`${process.env.PARTICLE_PRODUCT_BASE_URL}/device_claims`, null, {
+        headers: { Authorization: `Bearer ${custResponse.data.access_token}` }
+      });
 
       res.setHeader('Content-Type', 'application/json');
       return res.end(JSON.stringify({ claimCode: claimResponse.data.claim_code }));

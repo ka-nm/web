@@ -76,7 +76,15 @@ export default {
           }
         } catch (err) {
           console.error(err);
-          this.displayMessage({ text: 'Failed to create account', color: 'error' });
+
+          let text = 'Failed to create account';
+          if (err.response) {
+            if (err.response.status === 409) {
+              text = 'An account with this email already exists';
+            }
+          }
+
+          this.displayMessage({ text, color: 'error' });
         }
       }
     }

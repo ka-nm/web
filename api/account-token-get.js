@@ -22,8 +22,9 @@ module.exports = async (req, res) => {
       }
 
       const particleToken = await shared.particle.getAccessToken();
-      const deviceResponse = await axios.get(`${process.env.PARTICLE_PRODUCT_BASE_URL}/devices?deviceId=${device.deviceId}`, {
-        headers: { Authorization: `Bearer ${particleToken}` }
+      const deviceResponse = await axios.get(`${process.env.PARTICLE_PRODUCT_BASE_URL}/devices`, {
+        headers: { Authorization: `Bearer ${particleToken}` },
+        params: { deviceId: device.deviceId }
       });
 
       if (!deviceResponse.data.devices.length) {

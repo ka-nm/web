@@ -24,10 +24,10 @@
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.2.2",
     "@vue/cli-plugin-eslint": "^3.2.2",
-    "@vue/cli-service": "^3.2.2",
+    "@vue/cli-service": "^3.2.3",
     "babel-eslint": "^10.0.1",
     "eslint": "^5.11.1",
-    "eslint-plugin-vue": "^5.0.0-0",
+    "eslint-plugin-vue": "^5.1.0",
     "vue-cli-plugin-vuetify": "^0.4.6",
     "vue-template-compiler": "^2.5.21"
   }
