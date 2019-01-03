@@ -1,7 +1,6 @@
 import Vue from 'vue';
 import auth0 from 'auth0-js';
 import axios from 'axios';
-import router from './router';
 
 const baseUrl = process.env.VUE_APP_API_BASE_URL || '';
 
@@ -81,7 +80,10 @@ class AuthService {
     this.expiresAt = null;
 
     Vue.ls.remove('isAuthenticated');
-    router.replace({ name: 'home' });
+    this.auth0.logout({
+      clientID: process.env.VUE_APP_AUTH0_CLIENT_ID,
+      returnTo: process.env.VUE_APP_AUTH0_REDIRECT_BASE_URL
+    });
   }
 }
 

@@ -37,10 +37,6 @@
     {
       "src": "api/device-put.js",
       "use": "@now/node"
-    },
-    {
-      "src": "api/webhooks.js",
-      "use": "@now/node"
     }
   ],
   "alias": [
@@ -87,13 +83,6 @@
         "PUT"
       ],
       "dest": "/api/device-put.js?deviceId=$id"
-    },
-    {
-      "src": "/webhooks/device",
-      "methods": [
-        "POST"
-      ],
-      "dest": "api/webhooks.js"
     },
     {
       "src": "/favicon.ico",

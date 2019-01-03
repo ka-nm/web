@@ -4,8 +4,28 @@
       <v-toolbar-title>Goals</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn icon to="/">
-        <v-icon>arrow_back</v-icon>
+        <v-tooltip top>
+          <v-icon slot="activator">arrow_back</v-icon>
+          <span>Back</span>
+        </v-tooltip>
       </v-btn>
+      <v-dialog v-model="clearDialogDisplayed" max-width="320">
+        <v-btn icon slot="activator">
+          <v-tooltip top>
+            <v-icon slot="activator">delete</v-icon>
+            <span>Reset</span>
+          </v-tooltip>
+        </v-btn>
+        <v-card>
+          <v-card-text>Are you sure you want to clear your goals?</v-card-text>
+          <v-divider></v-divider>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="red lighten-2" flat @click="onReset">Reset</v-btn>
+            <v-btn color="primary" flat @click="clearDialogDisplayed = false">Cancel</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </v-toolbar>
     <v-card-text class="grey lighten-5">
       <v-alert
@@ -50,6 +70,7 @@ export default {
   },
   data() {
     return {
+      clearDialogDisplayed: false,
       allGoalsValid: true,
       totalPercentageValid: true,
       valid: [true, true, true, true],
@@ -61,7 +82,7 @@ export default {
     ...mapState(['device'])
   },
   methods: {
-    ...mapActions(['storeDevice', 'displayMessage']),
+    ...mapActions(['updateDevice', 'resetDevice', 'displayMessage']),
     onValid(index, isValid) {
       this.valid[index] = isValid;
       this.allGoalsValid = this.valid.every(x => x);
@@ -74,6 +95,18 @@ export default {
         const total = enabledGoals.reduce((sum, goal) => +goal.percentage + sum, 0);
         this.totalPercentageValid = total === 100;
       }
+    },
+    async onReset() {
+      this.clearDialogDisplayed = false;
+      this.busy = true;
+      if (await this.resetDevice()) {
+        this.displayMessage({ text: 'Goals reset', color: 'info' });
+        this.initialize();
+      } else {
+        this.displayMessage({ text: 'Failed to reset goals', color: 'error' });
+      }
+
+      this.busy = false;
     },
     async onSave() {
       this.busy = true;
@@ -93,32 +126,35 @@ export default {
         })
       };
 
-      if (await this.storeDevice(device)) {
+      if (await this.updateDevice(device)) {
         this.displayMessage({ text: 'Goals updated', color: 'info' });
       } else {
         this.displayMessage({ text: 'Failed to update goals', color: 'error' });
       }
 
       this.busy = false;
+    },
+    initialize() {
+      this.goals = this.device.goals.map(g => {
+        return {
+          name: g.name,
+          color: g.color,
+          enabled: g.enabled,
+          percentage: g.percentage * 100,
+          total: g.total,
+          current: g.current,
+          promise: g.promise
+        };
+      });
+
+      for (let index in this.goals) {
+        this.$watch(['goals', index, 'percentage'].join('.'), this.onPercentage);
+        this.$watch(['goals', index, 'enabled'].join('.'), this.onPercentage);
+      }
     }
   },
   mounted() {
-    this.goals = this.device.goals.map(g => {
-      return {
-        name: g.name,
-        color: g.color,
-        enabled: g.enabled,
-        percentage: g.percentage * 100,
-        total: g.total,
-        current: g.current,
-        promise: g.promise
-      };
-    });
-
-    for (let index in this.goals) {
-      this.$watch(['goals', index, 'percentage'].join('.'), this.onPercentage);
-      this.$watch(['goals', index, 'enabled'].join('.'), this.onPercentage);
-    }
+    this.initialize();
   }
 };
 </script>

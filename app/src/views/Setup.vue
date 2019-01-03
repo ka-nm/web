@@ -39,7 +39,7 @@
         <v-stepper-content step="4">
           <p>Congratulations - device setup is complete!</p>
           <p>You'll now be asked to login so you can interact with your device.</p>
-          <v-btn color="primary" to="home">Finish
+          <v-btn color="primary" to="/">Finish
             <v-icon right dark>check</v-icon>
           </v-btn>
         </v-stepper-content>

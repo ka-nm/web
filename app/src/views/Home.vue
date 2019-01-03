@@ -4,8 +4,28 @@
       <v-toolbar-title>DigiPiggy</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn icon to="settings">
-        <v-icon>settings</v-icon>
+        <v-tooltip top>
+          <v-icon slot="activator">settings</v-icon>
+          <span>Settings</span>
+        </v-tooltip>
       </v-btn>
+      <v-dialog v-model="logoutDialogDisplayed" max-width="320">
+        <v-btn icon slot="activator">
+          <v-tooltip top>
+            <v-icon slot="activator">power_settings_new</v-icon>
+            <span>Logout</span>
+          </v-tooltip>
+        </v-btn>
+        <v-card>
+          <v-card-text>Are you sure you want to logout?</v-card-text>
+          <v-divider></v-divider>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="red lighten-2" flat @click="onLogout">Logout</v-btn>
+            <v-btn color="primary" flat @click="logoutDialogDisplayed = false">Cancel</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </v-toolbar>
     <v-card-text>
       <v-container fluid>
@@ -46,10 +66,12 @@
 
 <script>
 import { mapState, mapActions } from 'vuex';
+import Auth from '../auth';
 
 export default {
   data() {
     return {
+      logoutDialogDisplayed: false,
       busy: false,
       deposit: null
     };
@@ -61,7 +83,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['displayMessage', 'updateGoalTotals']),
+    ...mapActions(['displayMessage', 'depositIntoGoals']),
     getGoalName(index) {
       return this.device.goals[index].name;
     },
@@ -73,34 +95,16 @@ export default {
       const goals = this.enabledGoals[index];
       return this.$color(goals.color);
     },
+    onLogout() {
+      Auth.logout();
+    },
     async onDeposit() {
       if (+this.deposit === 0) {
         return this.displayMessage({ text: 'Please enter an amount to deposit', color: 'info' });
       }
 
       this.busy = true;
-
-      const deposits = [0, 0, 0, 0];
-      let remainder = +this.deposit;
-      do {
-        remainder = this.device.goals.reduce((r, g, i) => {
-          if (g.enabled && g.total > g.current + deposits[i]) {
-            const deposit = Math.round(g.percentage * remainder);
-            const runningTotal = g.current + deposits[i];
-            if (runningTotal + deposit > g.total) {
-              const diff = g.total - runningTotal;
-              deposits[i] += diff;
-              r += deposit - diff;
-            } else {
-              deposits[i] += deposit;
-            }
-          }
-
-          return r;
-        }, 0);
-      } while (remainder > 0 && !this.device.goals.every((d, i) => d.total === d.current + deposits[i]));
-
-      if (await this.updateGoalTotals(deposits)) {
+      if (await this.depositIntoGoals(+this.deposit)) {
         this.deposit = 0;
         this.displayMessage({ text: 'Deposit successful', color: 'info' });
       } else {
