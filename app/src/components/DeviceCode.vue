@@ -56,7 +56,17 @@ export default {
           }
         } catch (err) {
           console.error(err);
-          this.displayMessage({ text: 'Failed to find device', color: 'error' });
+
+          let text = 'Unexpected error occurred';
+          if (err.response) {
+            if (err.response.status === 404) {
+              text = 'Unable to find device';
+            } else if (err.response.status === 409) {
+              text = 'Device has already been claimed';
+            }
+          }
+
+          this.displayMessage({ text, color: 'error' });
         }
       }
     }

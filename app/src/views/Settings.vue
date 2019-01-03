@@ -17,7 +17,7 @@
           </v-tooltip>
         </v-btn>
         <v-card>
-          <v-card-text>Are you sure you want to clear your goals?</v-card-text>
+          <v-card-text>Are you sure you want to reset your goals?</v-card-text>
           <v-divider></v-divider>
           <v-card-actions>
             <v-spacer></v-spacer>

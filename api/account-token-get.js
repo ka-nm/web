@@ -1,6 +1,8 @@
 const { parse } = require('url');
+const axios = require('axios');
 const CSRF = require('csrf');
 const shared = require('./shared');
+
 const csrf = new CSRF();
 
 module.exports = async (req, res) => {
@@ -17,6 +19,22 @@ module.exports = async (req, res) => {
       if (!device) {
         res.statusCode = 404;
         return res.end('Not Found');
+      }
+
+      const particleToken = await shared.particle.getAccessToken();
+      const deviceResponse = await axios.get(`${process.env.PARTICLE_PRODUCT_BASE_URL}/devices?deviceId=${device.deviceId}`, {
+        headers: { Authorization: `Bearer ${particleToken}` }
+      });
+
+      if (!deviceResponse.data.devices.length) {
+        console.log('Device %s does not exist within product', device.deviceId);
+        res.statusCode = 404;
+        return res.end('Not Found');
+      }
+
+      if (deviceResponse.data.customers.length) {
+        res.statusCode = 409;
+        return res.end('Device Claimed');
       }
 
       res.setHeader('Content-Type', 'application/json');
