@@ -4,7 +4,6 @@ LICENSE
 README.md
 package-lock.json
 .prettierrc
-.eslintrc.*
 .env.local
 .env.*.local
 .env.development
