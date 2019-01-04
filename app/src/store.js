@@ -233,7 +233,9 @@ export default new Vuex.Store({
       const updatedDevice = cloneDevice(state.device);
       updatedDevice.goals.forEach((g, i) => g.current += deposits[i]);
       try {
-        await axios.put(`${state.baseUrl}/api/device/${state.device.deviceId}`, updatedDevice);
+        await axios.put(`${state.baseUrl}/api/device/${state.device.deviceId}`, updatedDevice, {
+          headers: { Authorization: `Bearer ${Auth.idToken}` }
+        });
       } catch (err) {
         console.error(err);
         return false;
