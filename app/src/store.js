@@ -88,24 +88,20 @@ export default new Vuex.Store({
       return true;
     },
     async resetDevice({ state, dispatch }) {
-      if (!await dispatch('updateEnabled', [false, false, false, false])) {
-        return false;
-      }
+      const response = await axios.post(`https://api.particle.io/v1/devices/${state.device.deviceId}/reset`,
+        qs.stringify({
+          arg: ''
+        }), {
+          headers: { Authorization: `Bearer ${Auth.accessToken}` }
+        });
 
-      const values = Array(4).fill().map(() => {
-        return {
-          total: 0,
-          current: 0,
-          promise: 0
-        };
-      });
-
-      if (!await dispatch('updateValues', values)) {
+      if (!response.data.connected || response.data.return_value !== 0) {
         return false;
       }
 
       const updatedDevice = cloneDevice(state.device);
       updatedDevice.goals.forEach(g => {
+        g.enabled = false;
         g.total = 0;
         g.current = 0;
         g.promise = 0;
@@ -115,7 +111,6 @@ export default new Vuex.Store({
         await axios.put(`${state.baseUrl}/api/device/${state.device.deviceId}`, updatedDevice, {
           headers: { Authorization: `Bearer ${Auth.idToken}` }
         });
-
       } catch (err) {
         console.error(err);
         return false;
