@@ -13,6 +13,7 @@
         <v-flex xs5>
           <v-text-field
             label="Activity"
+            :rules="[rules.activityRequired]"
             type="text"
             box
             required
@@ -22,7 +23,9 @@
         <v-flex xs3>
           <v-text-field
             label="Amount"
+            :rules="[rules.amountRequired]"
             type="text"
+            mask="#######"
             box
             required
             prefix="$"
@@ -33,6 +36,7 @@
           <v-select
             :items="device.goals"
             item-text="name"
+            :rules="[rules.goalRequired]"
             box
             label="For Goal"
             v-model="goal"
@@ -71,10 +75,16 @@
   export default {
     data() {
       return {
+        valid: true,
         activity: null,
         amount: null,
         goal: null,
-        promises: []
+        promises: [],
+        rules: {
+          activityRequired: v => !!v || 'Activity is required',
+          amountRequired: v => !!v || 'Amount is required',
+          goalRequired: v => !!v || 'Goal is required'
+        }
       }
     },
     computed: {
@@ -83,11 +93,17 @@
     methods: {
       ...mapActions['updateDevice'],
       onAddPromise () {
-        this.promises.push({
-          goalName: this.goal,
-          activity: this.activity,
-          amount: this.amount
-        });
+        if (this.$refs.form.validate()) {
+          this.promises.push({
+            goalName: this.goal,
+            activity: this.activity,
+            amount: this.amount
+          });
+          this.$refs.form.reset();
+          this.goal = null;
+          this.activity = null;
+          this.amount = null;
+        }
       },
       onCompletePromise (index) {
         this.promises.splice(index, 1);
@@ -96,13 +112,17 @@
         this.promises.splice(index, 1);
       },
       initialize() {
-        this.promises.push({goalName: 'Bike', activity: 'clean room', amount: '10'});
-        this.promises.push({goalName: 'Phone', activity: 'do dishes', amount: '20'});
-        this.promises.push({goalName: 'Bike', activity: 'clean house', amount: '30'});
-
-
-
-
+        this.promises = this.device.goals.reduce((acc, cur) => {
+          if (cur.promises) {
+            return acc.concat(cur.promises)
+          }
+          return acc;
+        }, []);
+      }
+    },
+    watch: {
+      valid() {
+        this.$emit('valid', this.valid);
       }
     },
     mounted() {
