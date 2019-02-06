@@ -13,7 +13,8 @@ const schema = Joi.object().keys({
     color: Joi.number().integer().min(0).max(16777215),
     total: Joi.number().min(0).required(),
     current: Joi.number().min(0).max(Joi.ref('total')).required(),
-    promise: Joi.number().min(0).max(Joi.ref('total')).required()
+    promise: Joi.number().min(0).max(Joi.ref('total')).required(),
+    promises: Joi.array()
   }))
 });
 
