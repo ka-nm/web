@@ -30,7 +30,7 @@
         </v-subheader>
         <v-container fluid>
           <v-layout>
-            <v-flex xs5>
+            <v-flex xs8>
               <v-text-field
                 label="Activity"
                 :rules="[rules.activityRequired]"
@@ -40,7 +40,7 @@
                 v-model="activity"
               ></v-text-field>
             </v-flex>
-            <v-flex xs3>
+            <v-flex xs4>
               <v-text-field
                 label="Amount"
                 :rules="[rules.amountRequired]"
@@ -52,7 +52,9 @@
                 v-model="amount"
               ></v-text-field>
             </v-flex>
-            <v-flex xs4>
+          </v-layout>
+          <v-layout fluid>
+            <v-flex xs8>
               <v-select
                 :items="device.goals"
                 item-text="name"
@@ -60,10 +62,12 @@
                 box
                 label="For Goal"
                 v-model="goal"
-                append-outer-icon="add_circle"
-                @click:append-outer="onAddPromise"
-                @keyup.enter="onAddPromise"
               ></v-select>
+            </v-flex>
+            <v-flex xs4>
+              <v-icon @click="onAddPromise" class="text-xs-center" style="margin-top: 16px">
+                add_circle
+              </v-icon>
             </v-flex>
           </v-layout>
         </v-container>
@@ -118,30 +122,40 @@
       async onAddPromise () {
         this.busy = true;
         if (this.$refs.form.validate()) {
-          await this.addPromise({
+          if (await this.addPromise({
             goalName: this.goal,
             activity: this.activity,
             amount: this.amount
-          });
-          this.$refs.form.reset();
-          this.goal = null;
-          this.activity = null;
-          this.amount = null;
+          })) {
+            this.displayMessage({ text: 'Promise added', color: 'info' });
+            this.$refs.form.reset();
+            this.goal = null;
+            this.activity = null;
+            this.amount = null;
+          } else {
+            this.displayMessage({ text: 'Promise add failed', color: 'error' });
+          }
         }
         this.busy = false;
-        this.displayMessage({ text: 'Promise added', color: 'info' });
       },
       async onCompletePromise (promise) {
         this.busy = true;
-        await this.completePromise(promise);
+        if (await this.completePromise(promise)) {
+          this.displayMessage({ text: 'Promise completed', color: 'info' });
+        } else {
+          this.displayMessage({ text: 'Promise complete failed', color: 'error' });
+        }
         this.busy = false;
-        this.displayMessage({ text: 'Promise completed', color: 'info' });
+
       },
       async onDeletePromise (promise) {
         this.busy = true;
-        await this.removePromise(promise);
+        if (await this.removePromise(promise)) {
+          this.displayMessage({ text: 'Promise deleted', color: 'info' });
+        } else {
+          this.displayMessage({ text: 'Promise delete failed', color: 'error' });
+        }
         this.busy = false;
-        this.displayMessage({ text: 'Promise deleted', color: 'info' });
       }
     },
     watch: {

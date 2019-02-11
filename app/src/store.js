@@ -275,7 +275,7 @@ export default new Vuex.Store({
         }
       });
 
-      await dispatch('updateDevice', updatedDevice);
+      return await dispatch('updateDevice', updatedDevice);
     },
     async removePromise({state, dispatch}, promise) {
       const updatedDevice = cloneDevice(state.device);
@@ -295,7 +295,7 @@ export default new Vuex.Store({
         }
       });
 
-      await dispatch('updateDevice', updatedDevice);
+      return await dispatch('updateDevice', updatedDevice);
     },
     async completePromise({state, dispatch}, promise) {
       const updatedDevice = cloneDevice(state.device);
@@ -316,7 +316,7 @@ export default new Vuex.Store({
       });
 
 
-      await dispatch('updateDevice', updatedDevice);
+      return await dispatch('updateDevice', updatedDevice);
     }
   }
 })
