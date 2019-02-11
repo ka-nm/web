@@ -121,7 +121,8 @@ export default {
             percentage: +g.percentage / 100,
             total: +g.total,
             current: +g.current,
-            promise: +g.promise
+            promise: +g.promise,
+            promises: g.promises
           };
         })
       };
@@ -143,7 +144,8 @@ export default {
           percentage: g.percentage * 100,
           total: g.total,
           current: g.current,
-          promise: g.promise
+          promise: g.promise,
+          promises: g.promises
         };
       });
 

@@ -31,6 +31,22 @@ export default new Vuex.Store({
       state.device = device;
     }
   },
+  getters: {
+    promises: state => {
+      return state.device.goals.reduce((acc, cur) => {
+        if (cur.promises) {
+          return acc.concat(cur.promises.map((item) => {
+            return {
+              goalName: cur.name,
+              activity: item.activity,
+              amount: item.amount
+            }
+          }));
+        }
+        return acc;
+      }, []);
+    }
+  },
   actions: {
     displayMessage({ commit }, options) {
       commit('setMessage', options);
@@ -87,7 +103,7 @@ export default new Vuex.Store({
       commit('setDevice', device);
       return true;
     },
-    async resetDevice({ state, dispatch }) {
+    async resetDevice({ state }) {
       const response = await axios.post(`https://api.particle.io/v1/devices/${state.device.deviceId}/reset`,
         qs.stringify({
           arg: ''
@@ -105,6 +121,7 @@ export default new Vuex.Store({
         g.total = 0;
         g.current = 0;
         g.promise = 0;
+        g.promises = [];
       });
 
       try {
@@ -237,6 +254,69 @@ export default new Vuex.Store({
       }
 
       return true;
+    },
+    async addPromise({state, dispatch}, promise) {
+      const updatedDevice = cloneDevice(state.device);
+
+      updatedDevice.goals.forEach((item) => {
+        if (item.name === promise.goalName) {
+          if (!item.promises || !Array.isArray(item.promises)) {
+            item.promises = [];
+          }
+
+          item.promises.push({
+            activity: promise.activity,
+            amount: +promise.amount
+          });
+
+          item.promise = item.promises.reduce((acc, cur) => {
+            return acc + cur.amount;
+          }, 0);
+        }
+      });
+
+      return await dispatch('updateDevice', updatedDevice);
+    },
+    async removePromise({state, dispatch}, promise) {
+      const updatedDevice = cloneDevice(state.device);
+
+      updatedDevice.goals.forEach((goal) => {
+        if (goal.name === promise.goalName) {
+          const foundIndex = goal.promises.findIndex((curPromise) => {
+            return curPromise.action === promise.activatable &&
+                   curPromise.amount === promise.amount
+          });
+
+          goal.promises.splice(foundIndex, 1);
+
+          goal.promise = goal.promises.reduce((acc, cur) => {
+            return acc + cur.amount;
+          }, 0);
+        }
+      });
+
+      return await dispatch('updateDevice', updatedDevice);
+    },
+    async completePromise({state, dispatch}, promise) {
+      const updatedDevice = cloneDevice(state.device);
+
+      updatedDevice.goals.forEach((goal) => {
+        if (goal.name === promise.goalName) {
+          const foundIndex = goal.promises.findIndex((curPromise) => {
+            return curPromise.action === promise.activatable &&
+                curPromise.amount === promise.amount
+          });
+
+          goal.current = goal.current + goal.promises[foundIndex].amount;
+          goal.promises.splice(foundIndex, 1);
+          goal.promise = goal.promises.reduce((acc, cur) => {
+            return acc + cur.amount;
+          }, 0);
+        }
+      });
+
+
+      return await dispatch('updateDevice', updatedDevice);
     }
   }
 })
