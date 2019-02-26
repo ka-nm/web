@@ -93,7 +93,11 @@
       "dest": "/app/touch-icon-iphone-retina.png"
     },
     {
-      "src": "/(?<file>(css|fonts|js|img|pdf)/.*)",
+      "src": "/DigiPig_Prototype_Version_1_setup.pdf",
+      "dest": "/app/DigiPig_Prototype_Version_1_setup.pdf"
+    },
+    {
+      "src": "/(?<file>(css|fonts|js|img)/.*)",
       "dest": "/app/$file"
     },
     {
