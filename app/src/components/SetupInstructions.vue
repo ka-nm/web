@@ -8,7 +8,7 @@
             <ol>
                 <li>Plug in the device. Upon boot up you should see a blue network connection icon identifying that it’s ready to be paired.</li>
                 <li>Make sure where you’re setting up the DigiPig has access to a 2.4GHz spectrum hot spot.
-                <li>Fill in the above fields.
+                <li>Fill in the above fields
                     a. The Device ID is on the back of the DigiPig and the bottom of the box.
                     b. Once adding email at the sign-up page, be sure to verify email from the address used
                     from your inbox before attempting to log in after setup.
