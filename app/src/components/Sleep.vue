@@ -98,14 +98,14 @@
       initialize() {
         if (this.device.piggySleep) {
           this.piggySleep = this.device.piggySleep;
-        }
-
-        this.piggySleep = {
-          enabled: false,
-          wakeupTime: null,
-          sleepTime: null,
-          timezone: null,
-          observeDaylightSavings: true
+        } else {
+          this.piggySleep = {
+            enabled: false,
+            wakeupTime: null,
+            sleepTime: null,
+            timezone: null,
+            observeDaylightSavings: true
+          }
         }
       }
     },
