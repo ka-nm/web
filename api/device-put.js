@@ -6,6 +6,13 @@ const shared = require('./shared');
 const schema = Joi.object().keys({
   deviceId: Joi.string().alphanum().required(),
   deviceCode: Joi.string().alphanum().length(6).required(),
+  piggySleep: Joi.object().keys({
+    enabled: Joi.boolean(),
+    wakeupTime: Joi.string(),
+    sleepTime: Joi.string(),
+    timezone: Joi.number(),
+    observeDaylightSavings: Joi.boolean()
+  }),
   goals: Joi.array().length(4).required().items(Joi.object().keys({
     name: Joi.string(),
     enabled: Joi.boolean(),
