@@ -45,7 +45,7 @@ export default new Vuex.Store({
         }
         return acc;
       }, []);
-    }
+    },
   },
   actions: {
     displayMessage({ commit }, options) {
@@ -317,6 +317,11 @@ export default new Vuex.Store({
 
 
       return await dispatch('updateDevice', updatedDevice);
-    }
+    },
+    async savePiggySleep({state, dispatch}, piggySleep) {
+      const updatedDevice = cloneDevice(state.device);
+      updatedDevice.piggySleep = piggySleep;
+      return await dispatch('updateDevice', updatedDevice);
+    },
   }
 })
