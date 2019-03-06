@@ -77,6 +77,11 @@ export default new Vuex.Store({
         return false;
       }
 
+      const piggySleep = device.piggySleep;
+      if (!await dispatch('updatePiggySleep', piggySleep)) {
+        return false;
+      }
+
       const values = device.goals.map(g => {
         return {
           total: g.total,
@@ -323,5 +328,34 @@ export default new Vuex.Store({
       updatedDevice.piggySleep = piggySleep;
       return await dispatch('updateDevice', updatedDevice);
     },
+    async updatePiggySleep({state, commit}, piggySleep){
+      let payload = null;
+      if (!piggySleep) {
+        payload = '0|00:00|00:00|0|0';
+      } else {
+        payload = `${piggySleep.enabled ? 1 : 0}|${piggySleep.wakeupTime || '00:00'}|${piggySleep.sleepTime || '00:00'}|${piggySleep.timezone || 0}|${piggySleep.observeDaylightSavings ? 1 : 0}`
+      }
+
+      try {
+        const response = await axios.post(`https://api.particle.io/v1/devices/${state.device.deviceId}/piggysleep`,
+            {arg: payload}, {
+              headers: { Authorization: `Bearer ${Auth.accessToken}` }
+            });
+
+        if (!response.data.connected || response.data.return_value !== 0) {
+          return false;
+        }
+
+        const updatedDevice = cloneDevice(state.device);
+        updatedDevice.piggySleep = piggySleep;
+
+        Vue.ls.set('device', updatedDevice);
+        commit('setDevice', updatedDevice);
+        return true;
+      } catch (err) {
+        console.error(err);
+        return false;
+      }
+    }
   }
 })

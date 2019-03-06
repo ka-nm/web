@@ -118,6 +118,7 @@ export default {
       const device = {
         deviceId: this.device.deviceId,
         deviceCode: this.device.deviceCode,
+        piggySleep: this.device.piggySleep,
         goals: this.goals.map(g => {
           return {
             name: g.name,
