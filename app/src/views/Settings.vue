@@ -1,72 +1,77 @@
 <template>
-  <v-card class="elevation-12">
-    <v-toolbar dark color="primary">
-      <v-toolbar-title>Goals</v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-btn icon to="/">
-        <v-tooltip top>
-          <v-icon slot="activator">arrow_back</v-icon>
-          <span>Back</span>
-        </v-tooltip>
-      </v-btn>
-      <v-dialog v-model="clearDialogDisplayed" max-width="320">
-        <v-btn icon slot="activator">
+  <div>
+    <v-card class="elevation-12 mb-4">
+      <v-toolbar dark color="primary">
+        <v-toolbar-title>Goals</v-toolbar-title>
+        <v-spacer></v-spacer>
+        <v-btn icon to="/">
           <v-tooltip top>
-            <v-icon slot="activator">delete</v-icon>
-            <span>Reset</span>
+            <v-icon slot="activator">arrow_back</v-icon>
+            <span>Back</span>
           </v-tooltip>
         </v-btn>
-        <v-card>
-          <v-card-text>Are you sure you want to reset your goals?</v-card-text>
-          <v-divider></v-divider>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="red lighten-2" flat @click="onReset">Reset</v-btn>
-            <v-btn color="primary" flat @click="clearDialogDisplayed = false">Cancel</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-    </v-toolbar>
-    <v-card-text class="grey lighten-5">
-      <v-alert
-        class="mb-3"
-        :value="!totalPercentageValid"
-        type="warning"
-      >Total percentage does not add up to 100.</v-alert>
-      <v-expansion-panel popout>
-        <v-expansion-panel-content v-for="(goal, i) in goals" :key="i">
-          <div slot="header">
-            <v-chip color="white" :disabled="true" :class="(goal.enabled ? 'goal-enabled' : '')">
-              <v-avatar :color="goal.enabled ? $color(goal.color) : 'grey'"></v-avatar>
-              {{ goal.name }}
-            </v-chip>
-          </div>
+        <v-dialog v-model="clearDialogDisplayed" max-width="320">
+          <v-btn icon slot="activator">
+            <v-tooltip top>
+              <v-icon slot="activator">delete</v-icon>
+              <span>Reset</span>
+            </v-tooltip>
+          </v-btn>
           <v-card>
-            <goal v-model="goals[i]" :busy="busy" @valid="onValid(i, $event)"/>
+            <v-card-text>Are you sure you want to reset your goals?</v-card-text>
+            <v-divider></v-divider>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="red lighten-2" flat @click="onReset">Reset</v-btn>
+              <v-btn color="primary" flat @click="clearDialogDisplayed = false">Cancel</v-btn>
+            </v-card-actions>
           </v-card>
-        </v-expansion-panel-content>
-      </v-expansion-panel>
-    </v-card-text>
-    <v-card-actions>
-      <v-spacer></v-spacer>
-      <v-btn
-        color="primary"
-        @click="onSave"
-        :disabled="!totalPercentageValid || !allGoalsValid || busy"
-      >Save Goals
-        <v-icon right dark>cloud_upload</v-icon>
-      </v-btn>
-    </v-card-actions>
-  </v-card>
+        </v-dialog>
+      </v-toolbar>
+      <v-card-text class="grey lighten-5">
+        <v-alert
+          class="mb-3"
+          :value="!totalPercentageValid"
+          type="warning"
+        >Total percentage does not add up to 100.</v-alert>
+        <v-expansion-panel popout>
+          <v-expansion-panel-content v-for="(goal, i) in goals" :key="i">
+            <div slot="header">
+              <v-chip color="white" :disabled="true" :class="(goal.enabled ? 'goal-enabled' : '')">
+                <v-avatar :color="goal.enabled ? $color(goal.color) : 'grey'"></v-avatar>
+                {{ goal.name }}
+              </v-chip>
+            </div>
+            <v-card>
+              <goal v-model="goals[i]" :busy="busy" @valid="onValid(i, $event)"/>
+            </v-card>
+          </v-expansion-panel-content>
+        </v-expansion-panel>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn
+          color="primary"
+          @click="onSave"
+          :disabled="!totalPercentageValid || !allGoalsValid || busy"
+        >Save Goals
+          <v-icon right dark>cloud_upload</v-icon>
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+    <sleep />
+  </div>
 </template>
 
 <script>
 import { mapState, mapActions } from 'vuex';
 import Goal from '@/components/Goal';
+import Sleep from '@/components/Sleep';
 
 export default {
   components: {
-    goal: Goal
+    goal: Goal,
+    sleep: Sleep
   },
   data() {
     return {
@@ -113,6 +118,7 @@ export default {
       const device = {
         deviceId: this.device.deviceId,
         deviceCode: this.device.deviceCode,
+        piggySleep: this.device.piggySleep,
         goals: this.goals.map(g => {
           return {
             name: g.name,

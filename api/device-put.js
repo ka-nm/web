@@ -8,8 +8,8 @@ const schema = Joi.object().keys({
   deviceCode: Joi.string().alphanum().length(6).required(),
   piggySleep: Joi.object().keys({
     enabled: Joi.boolean(),
-    wakeupTime: Joi.string(),
-    sleepTime: Joi.string(),
+    wakeupTime: Joi.string().allow(null).empty(),
+    sleepTime: Joi.string().allow(null).empty(),
     timezone: Joi.number(),
     observeDaylightSavings: Joi.boolean()
   }),
