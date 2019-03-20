@@ -10,8 +10,7 @@
                 <li>Make sure where you’re setting up the DigiPig has access to a 2.4GHz spectrum hot spot.
                 <li>Fill in the above fields:
                     a. The Device ID is on the back of the DigiPig and the bottom of the box.
-                    b. Once adding email at the sign-up page, be sure to verify email from the address used
-                    from your inbox before attempting to log in after setup.
+                    b. Once you've added an email address at the sign-up page, be sure to verify the email via a validation email in your inbox before attempting to log in after setup.
                 <li>Once verified proceed to log in to the device with email and password.
                 <li>Start adding Savings Goals</li>
             </ol>
