@@ -11,7 +11,7 @@
                 <li>Fill in the above fields:
                     a. The Device ID is on the back of the DigiPig and the bottom of the box.
                     b. Once you've added an email address at the sign-up page, be sure to verify the email via a validation email in your inbox before attempting to log in after setup.
-                <li>Once verified proceed to log in to the device with email and password.
+                <li>Once verified proceed to log in to the device with email and password (One (1) Uppercase letter and one (1) digit are required and must be more than 8 characters)
                 <li>Start adding Savings Goals</li>
             </ol>
             <h2>Use</h2>
