@@ -57,11 +57,11 @@ module.exports = async (req, res) => {
         return res.end('Account Exists');
       }
 
-      // create Auth0 / Particle accounts and generate device claim code
+      //create Auth0 account if user doesn't exist
       await axios({
         method: 'post',
         url: `${process.env.AUTH0_BASE_URL}/api/v2/users`,
-        headers: { Authorization: `Bearer ${auth0Token}` },
+        headers: {Authorization: `Bearer ${auth0Token}`},
         data: {
           connection: 'Username-Password-Authentication',
           email: requestBody.email,
@@ -69,6 +69,8 @@ module.exports = async (req, res) => {
         }
       });
 
+      //try to create customer in particle
+      let custAccessToken = null;
       const custResponse = await axios({
         method: 'post',
         url: `${process.env.PARTICLE_PRODUCT_BASE_URL}/customers`,
@@ -79,13 +81,46 @@ module.exports = async (req, res) => {
         data: querystring.stringify({
           email: requestBody.email,
           no_password: true
-        })
+        }),
+        validateStatus: (status) => (status >= 200 && status < 300) || status === 400
       });
 
-      await shared.particle.storeUserAccessToken(requestBody.email, custResponse.data.access_token);
+      if (custResponse === 200) {
+        custAccessToken = custResponse.data.access_token
+        //if customer exists, then get auth token via different api
+      } else if (custResponse.status === 400 && custResponse.data && custResponse.data.error === 'customer_exists') {
+        console.log('getting access token');
+        const custTokenResponse = await axios({
+          method: 'post',
+          url: 'https://api.particle.io/oauth/token',
+          auth: {
+            username: process.env.DIGIPIGGY_CLIENT_ID,
+            password: process.env.DIGIPIGGY_CLIENT_SECRET,
+          },
+          data: querystring.stringify({
+            scope: `customer=${requestBody.email}`,
+            grant_type: 'client_credentials'
+          }),
+        });
+
+        custAccessToken = custTokenResponse.data.access_token;
+
+      } else {
+        console.log('Particle error', custResponse);
+        res.statusCode = 500;
+        return res.end('Failure');
+      }
+
+      if (!custAccessToken) {
+        console.log('No customer access token');
+        res.statusCode = 500;
+        return res.end('Failure');
+      }
+
+      await shared.particle.storeUserAccessToken(requestBody.email, custAccessToken);
 
       const claimResponse = await axios.post(`${process.env.PARTICLE_PRODUCT_BASE_URL}/device_claims`, null, {
-        headers: { Authorization: `Bearer ${custResponse.data.access_token}` }
+        headers: { Authorization: `Bearer ${custAccessToken}` }
       });
 
       res.setHeader('Content-Type', 'application/json');
