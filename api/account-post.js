@@ -57,7 +57,7 @@ module.exports = async (req, res) => {
         return res.end('Account Exists');
       }
 
-      //create Auth0 account if user doesn't exist
+      //create Auth0 account if user doesn't exist.
       await axios({
         method: 'post',
         url: `${process.env.AUTH0_BASE_URL}/api/v2/users`,
