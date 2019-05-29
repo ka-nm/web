@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import auth0 from 'auth0-js';
 import axios from 'axios';
-//...
+
 const baseUrl = process.env.VUE_APP_API_BASE_URL || '';
 
 class AuthService {
