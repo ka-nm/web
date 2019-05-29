@@ -9,26 +9,26 @@
     "now-build": "npm run build"
   },
   "dependencies": {
-    "@babel/polyfill": "^7.2.5",
+    "@babel/polyfill": "^7.4.4",
     "@saeris/vue-spinners": "^1.0.8",
-    "auth0-js": "^9.8.2",
+    "auth0-js": "^9.10.4",
     "axios": "^0.18.0",
-    "qs": "^6.6.0",
-    "vue": "^2.5.21",
+    "qs": "^6.7.0",
+    "vue": "^2.6.10",
     "vue-axios": "^2.1.4",
-    "vue-ls": "^3.2.0",
-    "vue-router": "^3.0.1",
-    "vuetify": "^1.4.0",
-    "vuex": "^3.0.1"
+    "vue-ls": "^3.2.1",
+    "vue-router": "^3.0.6",
+    "vuetify": "^1.5.14",
+    "vuex": "^3.1.1"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "^3.2.2",
-    "@vue/cli-plugin-eslint": "^3.2.2",
-    "@vue/cli-service": "^3.2.3",
+    "@vue/cli-plugin-babel": "^3.8.0",
+    "@vue/cli-plugin-eslint": "^3.8.0",
+    "@vue/cli-service": "^3.8.0",
     "babel-eslint": "^10.0.1",
-    "eslint": "^5.11.1",
-    "eslint-plugin-vue": "^5.1.0",
-    "vue-cli-plugin-vuetify": "^0.4.6",
-    "vue-template-compiler": "^2.5.21"
+    "eslint": "^5.16.0",
+    "eslint-plugin-vue": "^5.2.2",
+    "vue-cli-plugin-vuetify": "^0.5.0",
+    "vue-template-compiler": "^2.6.10"
   }
 }
