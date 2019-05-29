@@ -131,7 +131,9 @@ export default {
       try {
         this.busy = true;
         console.log(this.claimCode);
-        await sap.setClaimCode(this.claimCode);
+        if (this.claimCode !== "wifireset") {
+          await sap.setClaimCode(this.claimCode);
+        }
         await sap.publicKey();
         await sap.configure({
           ssid: network.ssid,
@@ -144,7 +146,12 @@ export default {
         await new Promise(resolve =>
           setTimeout(() => {
             resolve();
-            window.location = `${process.env.VUE_APP_WIFI_REDIRECT_URL}/setup#finish`;
+            if (this.claimCode !== "wifireset") {
+              window.location = `${process.env.VUE_APP_WIFI_REDIRECT_URL}/setup#finish`;
+            }
+            else {
+              window.location = `${process.env.VUE_APP_WIFI_REDIRECT_URL}/settings`;
+            }
           }, 20000)
         );
       } catch (err) {
@@ -189,7 +196,6 @@ export default {
         return;
       }
     }
-
     this.handleError(null, 'No claim code provided');
   }
 };

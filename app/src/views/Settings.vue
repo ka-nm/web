@@ -10,6 +10,12 @@
             <span>Back</span>
           </v-tooltip>
         </v-btn>
+        <a :href="wifiUrl">
+          <v-tooltip top>
+            <v-icon slot="activator">signal_wifi_4_bar</v-icon>
+            <span>WiFi Reset</span>
+          </v-tooltip>
+        </a>
         <v-dialog v-model="clearDialogDisplayed" max-width="320">
           <v-btn icon slot="activator">
             <v-tooltip top>
@@ -80,7 +86,8 @@ export default {
       totalPercentageValid: true,
       valid: [true, true, true, true],
       busy: false,
-      goals: []
+      goals: [],
+      wifiUrl: `${process.env.VUE_APP_WIFI_REDIRECT_URL}#code=wifireset`
     };
   },
   computed: {
