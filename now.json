@@ -11,7 +11,8 @@
     "AUTH0_CLIENT_SECRET": "@auth0_client_secret",
     "DIGIPIGGY_CLIENT_ID": "@digipiggy_client_id",
     "DIGIPIGGY_CLIENT_SECRET": "@digipiggy_client_secret",
-    "PARTICLE_PRODUCT_BASE_URL": "@particle_product_base_url"
+    "PARTICLE_PRODUCT_BASE_URL": "@particle_product_base_url",
+    "PIGGY_API_KEY": "@piggy-api-key"
   },
   "builds": [
     {
@@ -36,6 +37,10 @@
     },
     {
       "src": "api/device-put.js",
+      "use": "@now/node"
+    },
+    {
+      "src": "api/sync-post.js",
       "use": "@now/node"
     }
   ],
@@ -83,6 +88,14 @@
         "PUT"
       ],
       "dest": "/api/device-put.js?deviceId=$id"
+    },
+    {
+      "src": "/api/sync",
+      "methods": [
+        "OPTIONS",
+        "POST"
+      ],
+      "dest": "/api/sync-post.js"
     },
     {
       "src": "/favicon.ico",
