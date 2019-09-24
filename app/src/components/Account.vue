@@ -5,7 +5,7 @@
         <v-text-field
           label="Email"
           type="email"
-          box
+          filled
           required
           prepend-icon="email"
           :rules="[rules.emailRequired, rules.email]"
@@ -14,7 +14,7 @@
         <v-text-field
           label="Password"
           type="password"
-          box
+          filled
           required
           prepend-icon="lock"
           :rules="[rules.passwordRequired, rules.passwordLength]"

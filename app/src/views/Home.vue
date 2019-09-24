@@ -6,54 +6,62 @@
         <v-spacer></v-spacer>
         <v-btn icon to="settings">
           <v-tooltip top>
-            <v-icon slot="activator">settings</v-icon>
-            <span>Settings</span>
+            <template v-slot:activator="{ on }">
+              <v-icon v-on="on">settings</v-icon>
+            </template>
+            <span>settings</span>
           </v-tooltip>
         </v-btn>
         <v-dialog v-model="logoutDialogDisplayed" max-width="320">
-          <v-btn icon slot="activator">
-            <v-tooltip top>
-              <v-icon slot="activator">power_settings_new</v-icon>
-              <span>Logout</span>
-            </v-tooltip>
-          </v-btn>
+          <template v-slot:activator="{ on }">
+            <v-btn icon v-on="on">
+              <v-tooltip top>
+                <template v-slot:activator="{ on }">
+                  <v-icon v-on="on">power_settings_new</v-icon>
+                </template>
+                <span>Logout</span>
+              </v-tooltip>
+            </v-btn>
+          </template>
           <v-card>
             <v-card-text>Are you sure you want to logout?</v-card-text>
             <v-divider></v-divider>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="red lighten-2" flat @click="onLogout">Logout</v-btn>
-              <v-btn color="primary" flat @click="logoutDialogDisplayed = false">Cancel</v-btn>
+              <v-btn color="red lighten-2" text @click="onLogout">Logout</v-btn>
+              <v-btn color="primary" text @click="logoutDialogDisplayed = false">Cancel</v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
       </v-toolbar>
       <v-card-text>
         <v-container fluid>
-          <v-layout align-center justify-center row fill-height>
-            <div v-for="(goal, i) in enabledGoals" :key="i" class="text-xs-center mx-2">
-              <v-progress-circular
-                class="align-center"
-                :rotate="90"
-                :size="60"
-                :width="10"
-                :value="getGoalValue(i)"
-                :color="getGoalColor(i)"
-              ></v-progress-circular>
-              <p class="mt-1" style="max-width: 60px;">{{ goal.name }}</p>
-            </div>
+          <v-row align="start" justify="center" align-content="center">
+            <template v-for="(goal, i) in enabledGoals">
+              <v-col :key="i" align="center">
+                <v-progress-circular
+                  class="align-center"
+                  :rotate="90"
+                  :size="60"
+                  :width="10"
+                  :value="getGoalValue(i)"
+                  :color="getGoalColor(i)"
+                ></v-progress-circular>
+                <p class="mt-1">{{ goal.name }}</p>
+              </v-col>
+            </template>
             <div v-if="!enabledGoals.length">
               <p>You don't have any enabled goals.</p>
               <p>Click the gear in the upper right to configure your goals.</p>
             </div>
-          </v-layout>
+          </v-row>
         </v-container>
         <v-text-field
           v-model="deposit"
           prefix="$"
           label="Deposit"
           mask="#######"
-          box
+          filled
           autofocus
           placeholder="20"
           append-outer-icon="add_circle"

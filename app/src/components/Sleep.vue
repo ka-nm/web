@@ -13,7 +13,7 @@
           v-model="piggySleep.wakeupTime"
           label="Wakeup at:"
           type="time"
-          box
+          filled
           :disabled="!piggySleep.enabled || busy"
           :rules="[rules.wakeupTimeRequired, rules.wakeupBeforeSleep]"
         ></v-text-field>
@@ -21,7 +21,7 @@
           v-model="piggySleep.sleepTime"
           label="Sleep at:"
           type="time"
-          box
+          filled
           :disabled="!piggySleep.enabled  || busy"
           :rules="[rules.sleepTimeRequired, rules.wakeupBeforeSleep]"
         ></v-text-field>
@@ -29,7 +29,7 @@
           :items="timezones"
           item-text="label"
           item-value="value"
-          box
+          filled
           label="Timezone"
           v-model="piggySleep.timezone"
           :disabled="!piggySleep.enabled  || busy"

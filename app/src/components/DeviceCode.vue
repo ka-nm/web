@@ -5,7 +5,7 @@
         <v-text-field
           label="Code"
           type="text"
-          box
+          filled
           autofocus
           required
           prepend-icon="memory"

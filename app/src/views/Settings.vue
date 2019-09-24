@@ -6,30 +6,38 @@
         <v-spacer></v-spacer>
         <v-btn icon to="/">
           <v-tooltip top>
-            <v-icon slot="activator">arrow_back</v-icon>
+            <template v-slot:activator="{ on }">
+              <v-icon v-on="on">arrow_back</v-icon>
+            </template>
             <span>Back</span>
           </v-tooltip>
         </v-btn>
         <a :href="wifiUrl">
           <v-tooltip top>
-            <v-icon slot="activator">signal_wifi_4_bar</v-icon>
+            <template v-slot:activator="{ on }">
+              <v-icon v-on="on">signal_wifi_4_bar</v-icon>
+            </template>
             <span>WiFi Reset</span>
           </v-tooltip>
         </a>
         <v-dialog v-model="clearDialogDisplayed" max-width="320">
-          <v-btn icon slot="activator">
-            <v-tooltip top>
-              <v-icon slot="activator">delete</v-icon>
-              <span>Reset</span>
-            </v-tooltip>
-          </v-btn>
+          <template v-slot:activator="{ on }">
+            <v-btn icon v-on="on">
+              <v-tooltip top>
+                <template v-slot:activator="{ on }">
+                  <v-icon v-on="on">delete</v-icon>
+                </template>
+                <span>Reset</span>
+              </v-tooltip>
+            </v-btn>
+          </template>
           <v-card>
             <v-card-text>Are you sure you want to reset your goals?</v-card-text>
             <v-divider></v-divider>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="red lighten-2" flat @click="onReset">Reset</v-btn>
-              <v-btn color="primary" flat @click="clearDialogDisplayed = false">Cancel</v-btn>
+              <v-btn color="red lighten-2" text @click="onReset">Reset</v-btn>
+              <v-btn color="primary" text @click="clearDialogDisplayed = false">Cancel</v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -40,19 +48,19 @@
           :value="!totalPercentageValid"
           type="warning"
         >Total percentage does not add up to 100.</v-alert>
-        <v-expansion-panel popout>
-          <v-expansion-panel-content v-for="(goal, i) in goals" :key="i">
-            <div slot="header">
-              <v-chip color="white" :disabled="true" :class="(goal.enabled ? 'goal-enabled' : '')">
-                <v-avatar :color="goal.enabled ? $color(goal.color) : 'grey'"></v-avatar>
-                {{ goal.name }}
-              </v-chip>
-            </div>
-            <v-card>
-              <goal v-model="goals[i]" :busy="busy" @valid="onValid(i, $event)"/>
-            </v-card>
-          </v-expansion-panel-content>
-        </v-expansion-panel>
+        <v-expansion-panels popout>
+            <v-expansion-panel v-for="(goal, i) in goals" :key="i">
+              <v-expansion-panel-header >
+                <v-chip color="white" :class="(goal.enabled ? 'goal-enabled' : '')">
+                  <v-avatar :color="goal.enabled ? $color(goal.color) : 'grey'"></v-avatar>
+                  <span class="ml-2">{{ goal.name }}</span>
+                </v-chip>
+              </v-expansion-panel-header>
+              <v-expansion-panel-content>
+                <goal v-model="goals[i]" :busy="busy" @valid="onValid(i, $event)"/>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
+        </v-expansion-panels>
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>

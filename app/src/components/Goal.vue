@@ -4,7 +4,7 @@
       <v-text-field
         label="Name"
         :rules="[rules.nameRequired, rules.nameLength]"
-        box
+        filled
         counter="20"
         clearable
         required
@@ -14,7 +14,7 @@
       <v-text-field
         label="Goal total"
         prefix="$"
-        box
+        filled
         mask="#######"
         required
         v-model="value.total"
@@ -24,7 +24,7 @@
         label="Current amount saved"
         :rules="[rules.currentValue]"
         prefix="$"
-        box
+        filled
         mask="#######"
         required
         v-model="value.current"
@@ -34,7 +34,7 @@
         label="Amount promised"
         :rules="[rules.promiseValue]"
         prefix="$"
-        box
+        filled
         mask="#######"
         required
         v-model="value.promise"
@@ -43,7 +43,7 @@
       <v-text-field
         label="Percentage allocated from each deposit"
         prefix="%"
-        box
+        filled
         mask="###"
         required
         v-model="value.percentage"

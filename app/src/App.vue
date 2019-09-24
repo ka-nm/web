@@ -14,7 +14,7 @@
     </v-content>
     <v-snackbar v-model="notification" :multi-line="true" :timeout="3000">
       {{ notificationText }}
-      <v-btn flat :color="notificationColor" @click="notification = false">Close</v-btn>
+      <v-btn text :color="notificationColor" @click="notification = false">Close</v-btn>
     </v-snackbar>
   </v-app>
 </template>

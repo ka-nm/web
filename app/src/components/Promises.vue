@@ -29,47 +29,47 @@
           Add Promise
         </v-subheader>
         <v-container fluid>
-          <v-layout>
-            <v-flex xs8>
+          <v-row>
+            <v-col :cols="8">
               <v-text-field
                 label="Activity"
                 :rules="[rules.activityRequired]"
                 type="text"
-                box
+                filled
                 required
                 v-model="activity"
               ></v-text-field>
-            </v-flex>
-            <v-flex xs4>
+            </v-col>
+            <v-col :cols="4">
               <v-text-field
                 label="Amount"
                 :rules="[rules.amountRequired]"
                 type="text"
                 mask="#######"
-                box
+                filled
                 required
                 prefix="$"
                 v-model="amount"
               ></v-text-field>
-            </v-flex>
-          </v-layout>
-          <v-layout fluid>
-            <v-flex xs8>
+            </v-col>
+          </v-row>
+          <v-row fluid>
+            <v-col :cols="8">
               <v-select
                 :items="device.goals"
                 item-text="name"
                 :rules="[rules.goalRequired]"
-                box
+                filled
                 label="For Goal"
                 v-model="goal"
               ></v-select>
-            </v-flex>
-            <v-flex xs4>
+            </v-col>
+            <v-col :cols="4">
               <v-icon @click="onAddPromise" class="text-xs-center" style="margin-top: 16px">
                 add_circle
               </v-icon>
-            </v-flex>
-          </v-layout>
+            </v-col>
+          </v-row>
         </v-container>
       </v-form>
 

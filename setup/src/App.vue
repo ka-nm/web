@@ -3,8 +3,8 @@
     <v-icon class="offscreen">lock</v-icon>
     <v-content>
       <v-container fluid>
-        <v-layout align-center justify-center>
-          <v-flex xs12 sm8 md4>
+        <v-row align="center" justify="center">
+          <v-col :cols="4">
             <v-img :src="require('@/assets/logo.png')" height="128px" contain class="d-block my-4"></v-img>
             <v-card class="elevation-12">
               <v-toolbar dark color="primary">
@@ -20,28 +20,28 @@
                 </p>
                 <v-list v-show="networks.length" subheader>
                   <v-subheader>Available Networks</v-subheader>
-                  <v-list-tile
+                  <v-list-item
                     v-for="(network, i) in networks"
                     :key="i"
                     @click="onSelect(i)"
                     ripple
                   >
-                    <v-list-tile-avatar>
+                    <v-list-item-avatar>
                       <v-icon class="grey lighten-1">{{ wifiStrengthIcon(i) }}</v-icon>
-                    </v-list-tile-avatar>
-                    <v-list-tile-content>
-                      <v-list-tile-title v-text="network.ssid"></v-list-tile-title>
-                    </v-list-tile-content>
-                    <v-list-tile-action>
+                    </v-list-item-avatar>
+                    <v-list-item-content>
+                      <v-list-item-title v-text="network.ssid"></v-list-item-title>
+                    </v-list-item-content>
+                    <v-list-item-action>
                       <v-icon color="grey lighten-1" v-show="selectedNetwork === i">check</v-icon>
-                    </v-list-tile-action>
-                  </v-list-tile>
+                    </v-list-item-action>
+                  </v-list-item>
                 </v-list>
                 <v-text-field
                   v-show="showPassword"
                   label="Password"
                   type="password"
-                  box
+                  filled
                   prepend-icon="lock"
                   v-model="password"
                   :disabled="busy"
@@ -51,6 +51,7 @@
                   <v-icon v-show="networks.length" right dark>refresh</v-icon>
                 </v-btn>
                 <v-btn
+                  class="ml-2"
                   color="primary"
                   @click="onConnect"
                   :disabled="busy"
@@ -60,13 +61,13 @@
                 </v-btn>
               </v-card-text>
             </v-card>
-          </v-flex>
-        </v-layout>
+          </v-col>
+        </v-row>
       </v-container>
     </v-content>
     <v-snackbar v-model="notification" :multi-line="true" :timeout="3000">
       {{ notificationText }}
-      <v-btn flat :color="notificationColor" @click="notification = false">Close</v-btn>
+      <v-btn text :color="notificationColor" @click="notification = false">Close</v-btn>
     </v-snackbar>
   </v-app>
 </template>
