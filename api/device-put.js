@@ -13,6 +13,11 @@ const schema = Joi.object().keys({
     timezone: Joi.number(),
     observeDaylightSavings: Joi.boolean()
   }),
+  allowance: Joi.object().keys({
+    enabled: Joi.boolean(),
+    amount: Joi.number().min(0).allow(null),
+    depositSchedule: Joi.string().allow(null).empty()
+  }),
   goals: Joi.array().length(4).required().items(Joi.object().keys({
     name: Joi.string(),
     enabled: Joi.boolean(),

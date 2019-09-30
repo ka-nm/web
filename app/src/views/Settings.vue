@@ -73,7 +73,8 @@
         </v-btn>
       </v-card-actions>
     </v-card>
-    <sleep />
+    <allowance class="mb-4" />
+    <sleep class="mb-4" />
   </div>
 </template>
 
@@ -81,11 +82,13 @@
 import { mapState, mapActions } from 'vuex';
 import Goal from '@/components/Goal';
 import Sleep from '@/components/Sleep';
+import Allowance from '@/components/Allowance';
 
 export default {
   components: {
     goal: Goal,
-    sleep: Sleep
+    sleep: Sleep,
+    allowance: Allowance,
   },
   data() {
     return {
