@@ -34,7 +34,7 @@
         <v-btn
           color="primary"
           @click="onSave"
-        >Save Sleep
+        >Save Allowance
           <v-icon right dark>cloud_upload</v-icon>
         </v-btn>
       </v-card-actions>
