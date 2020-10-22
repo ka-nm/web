@@ -88,7 +88,7 @@ module.exports = async (req, res) => {
       if (custResponse.status === 200 || custResponse.status === 201) {
         custAccessToken = custResponse.data.access_token
         //if customer exists, then get auth token via different api
-      } else if (custResponse.status === 400 && custResponse.data && custResponse.data.error === 'customer_exists') {
+      } else if (custResponse.status === 400 && custResponse.data && custResponse.data.error === 'Customer already exists') {
         console.log('getting access token');
         const custTokenResponse = await axios({
           method: 'post',
