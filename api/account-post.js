@@ -85,7 +85,7 @@ module.exports = async (req, res) => {
         validateStatus: (status) => (status >= 200 && status < 300) || status === 400
       });
 
-      if (custResponse === 200) {
+      if (custResponse.status === 200 || custResponse.status === 201) {
         custAccessToken = custResponse.data.access_token
         //if customer exists, then get auth token via different api
       } else if (custResponse.status === 400 && custResponse.data && custResponse.data.error === 'customer_exists') {
