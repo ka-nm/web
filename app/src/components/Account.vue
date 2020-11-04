@@ -49,7 +49,7 @@ export default {
         emailRequired: v => !!v || 'Email is required',
         email: v => emailPattern.test(v) || 'Invalid email',
         passwordRequired: v => !!v || 'Password is required',
-        passwordLength: v => (v && v.length >= 8) || 'Password must be at least 8 characters'
+        passwordLength: v => (v && v.length >= 8) || 'Password must be at least 8 characters, with at least one capital letter and at least one number'
       }
     };
   },
