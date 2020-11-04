@@ -16,9 +16,12 @@
               <v-card-text>
                 <p>
                   Connect to the network that begins with
-                  <span class="font-weight-black">DIGIPIGGY</span> and then continue.
+                  <span class="font-weight-black">DIGIPIGGY</span> and then click continue.
                 </p>
                 <v-list v-show="networks.length" subheader>
+                  <p>
+                    Select your network from the list of available networks, enter your network password, and then click connect.
+                  </p>
                   <v-subheader>Available Networks</v-subheader>
                   <v-list-item
                     v-for="(network, i) in networks"
