@@ -80,6 +80,7 @@ import { PropagateLoader } from '@saeris/vue-spinners';
 import pify from 'pify';
 import qs from 'qs';
 import SoftAPSetup from 'softap-setup';
+import axios from 'axios';
 
 const sap = pify(new SoftAPSetup({ protocol: 'http' }));
 
@@ -91,13 +92,15 @@ export default {
     return {
       busy: false,
       claimCode: null,
+      deviceID: '',
       networks: [],
       selectedNetwork: -1,
       showPassword: false,
       password: null,
       notification: false,
       notificationText: '',
-      notificationColor: 'info'
+      notificationColor: 'info',
+      checkingWifiConfig: false
     };
   },
   computed: {
@@ -134,7 +137,10 @@ export default {
       const network = this.networks[this.selectedNetwork];
       try {
         this.busy = true;
-        console.log(this.claimCode);
+
+        console.log("in the function")
+        this.deviceID = await sap.deviceInfo().then(res => res.id);
+        console.log("this.deviceID", this.deviceID)
         if (this.claimCode !== "wifireset") {
           await sap.setClaimCode(this.claimCode);
         }
@@ -145,8 +151,40 @@ export default {
           password: this.password,
           channel: network.channel
         });
-
         await sap.connect();
+        console.log("after the connect")
+
+        // wait for wifi to have an internet connection (it kicks back to old wifi and is connected)
+        let isBackOnline = await this.checkIfOnline();
+
+        // if we don't have a wifi connection, then bail out of this function. 
+        console.log("isBackOnline", isBackOnline)
+        if (!isBackOnline) return;
+        
+        console.log("after the isBackOnline online")
+        await new Promise((resolve, reject) => {
+          console.log("checking if the device is online")
+          // TODO don't hardcode access token or product ID into this api call
+          console.log("this.deviceID", this.deviceID)
+          axios.put(`https://api.particle.io/v1/products/8466/devices/${this.deviceID}/ping?access_token=5043aee54ba12b3d3968325d3e653fc6eaf1e693`)
+          .then(response => {
+            console.log("response", response)
+            if (response.data.online) {
+              console.log("congrats, the device is online")
+              resolve();
+            }
+            console.log("crap, the device didn't connect. Reconnect to the DigiPig network and try again")
+            this.handleError(response, 'Failed to connect to WiFi network. Please try again.')
+            reject()
+          }).catch(err => {
+            console.log("in the catch")
+            this.handleError(err, 'Failed to ping device. Please try again.')
+            reject()
+          });
+        });
+
+        console.log("about to redirect")
+
         await new Promise(resolve =>
           setTimeout(() => {
             resolve();
@@ -156,13 +194,52 @@ export default {
             else {
               window.location = `${process.env.VUE_APP_WIFI_REDIRECT_URL}/settings`;
             }
-          }, 20000)
+          }, 30000)
         );
       } catch (err) {
         this.handleError(err, 'Failed to connect to WiFi network');
       } finally {
         this.busy = false;
       }
+    },
+    async checkIfOnline() {
+      let attemptsLeft = 4;
+      let attempts = 0;
+      let isOnline = false;
+      const wait = (delay) => new Promise(resolve => setTimeout(resolve, delay));
+
+      while (attemptsLeft > 0 && !isOnline) {
+        console.log("in the while")
+        console.log("attempts left", attemptsLeft)
+        console.log("isOnline", isOnline)
+        await axios.get('https://dynamodb.us-east-2.amazonaws.com')
+        .then(response => {
+          console.log("in the then")
+          // if successful, return true out of this whole thing
+          if (response.status >= 200 || response.status <= 300) {
+            console.log("successfully pinged dynamo")
+            // return true ???
+            isOnline = true;
+          }
+        })
+        .catch((err) => {
+          console.log("in the catch, do nothing... here's the error tho", err)
+        })
+        if (isOnline) {
+          console.log("in the if isOnline")
+          return true;
+        }
+        else {
+          console.log("in the else")
+          // if unsuccessful, wait 15 seconds, reduce trys by 1, and try again
+          await wait(15000);
+          attemptsLeft--;
+        }
+      }
+      // if out of trys, return false
+      console.log(`Tried ${attempts} times, still no internet connection.`)
+      this.handleError({}, 'Unable to connect to the internet. Please try again.');
+      return isOnline;
     },
     async onContinue() {
       this.networks = [];
