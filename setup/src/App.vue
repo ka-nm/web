@@ -11,6 +11,9 @@
                 <v-toolbar-title>WiFi Setup</v-toolbar-title>
               </v-toolbar>
               <v-layout align-center justify-center row v-show="busy">
+                <p>{{connectionStepText}}</p>
+              </v-layout>
+              <v-layout align-center justify-center row v-show="busy">
                 <loader color="#1976d2" class="my-3"/>
               </v-layout>
               <v-card-text>
@@ -80,6 +83,7 @@ import { PropagateLoader } from '@saeris/vue-spinners';
 import pify from 'pify';
 import qs from 'qs';
 import SoftAPSetup from 'softap-setup';
+import axios from 'axios';
 
 const sap = pify(new SoftAPSetup({ protocol: 'http' }));
 
@@ -91,13 +95,16 @@ export default {
     return {
       busy: false,
       claimCode: null,
+      deviceID: '',
       networks: [],
       selectedNetwork: -1,
       showPassword: false,
       password: null,
       notification: false,
       notificationText: '',
-      notificationColor: 'info'
+      notificationColor: 'info',
+      checkingWifiConfig: false,
+      connectionStepText: ''
     };
   },
   computed: {
@@ -136,7 +143,8 @@ export default {
       const network = this.networks[this.selectedNetwork];
       try {
         this.busy = true;
-        console.log(this.claimCode);
+        this.connectionStepText = 'Configuring device'
+        this.deviceID = await sap.deviceInfo().then(res => res.id);
         if (this.claimCode !== "wifireset") {
           await sap.setClaimCode(this.claimCode);
         }
@@ -147,24 +155,83 @@ export default {
           password: this.password,
           channel: network.channel
         });
-
         await sap.connect();
-        await new Promise(resolve =>
+
+        // After sap.connect(), it will automatically disconnect from the DIGIPIGGY wifi network
+        // Then the user's device (laptop, cell phone, etc) will automatically re-connect to their wifi network
+        // Wait until they are back on their network before proceeding.
+        
+        this.connectionStepText = 'Reconnecting to your wifi.'
+        let wiFiOnline = await this.checkIfWiFiIsOnline();
+        if (!wiFiOnline) return;
+        
+        let deviceOnline = false;
+        this.connectionStepText = 'Confirming Digi-Pig connected to network.'
+
+        // TODO: remove access token from URI
+        // TODO: move this to it's own function
+        await axios.put(`https://api.particle.io/v1/products/8466/devices/${this.deviceID}/ping?access_token=5043aee54ba12b3d3968325d3e653fc6eaf1e693`)
+        .then(response => {
+          if (response.data.online) {
+            deviceOnline = true; 
+          }
+          else {
+            this.handleError(response, 'Pig failed to connect to WiFi network. Please try again.')
+          }
+        }).catch(err => {
+          this.handleError(err, 'Failed to ping the pig. Please try again.')
+        });
+
+        if (!deviceOnline) return;
+
+        await new Promise(resolve => {
+          this.connectionStepText = 'Connection successful. Time to get Digi.'
           setTimeout(() => {
-            resolve();
-            if (this.claimCode !== "wifireset") {
-              window.location = `${process.env.VUE_APP_WIFI_REDIRECT_URL}/setup#finish`;
-            }
-            else {
-              window.location = `${process.env.VUE_APP_WIFI_REDIRECT_URL}/settings`;
-            }
-          }, 20000)
-        );
+            resolve()
+          }, 5000)
+        })
+        
+        if (this.claimCode !== "wifireset") {
+          window.location = `${process.env.VUE_APP_WIFI_REDIRECT_URL}/setup#finish`;
+        }
+        else {
+          window.location = `${process.env.VUE_APP_WIFI_REDIRECT_URL}/settings`;
+        }
       } catch (err) {
         this.handleError(err, 'Failed to connect to WiFi network');
       } finally {
         this.busy = false;
+        this.connectionStepText = ''
       }
+    },
+    async checkIfWiFiIsOnline() {
+      let attemptsLeft = 4;
+      let isOnline = false;
+      const wait = (delay) => new Promise(resolve => setTimeout(resolve, delay));
+
+      while (attemptsLeft > 0 && !isOnline) {
+        await axios.get('https://dynamodb.us-east-2.amazonaws.com')
+        .then(response => {
+          if (response.status >= 200 && response.status <= 300) {
+            isOnline = true;
+          }
+        })
+        .catch(err => {
+          console.log("error", err)
+        })
+        if (isOnline) {
+          // TODO: add retry logic into the device ping
+          // wait 5 seconds, this allows the device fully come online.
+          await wait(5000)
+          return true;
+        }
+        else {
+          await wait(15000);
+          attemptsLeft--;
+        }
+      }
+      this.handleError({}, 'Unable to connect to the internet. Please try again.');
+      return isOnline;
     },
     async onContinue() {
       this.networks = [];

@@ -9,12 +9,16 @@ module.exports = async (req, res) => {
       res.setHeader('Content-Length', '0');
       return res.end();
     } else if (req.method === 'GET') {
+      // validate the jwt against auth0
+      // basically check who the person is who they say they are
       const jwtPayload = await shared.auth0.validateJwt(req);
       if (!jwtPayload) {
         res.statusCode = 401;
         return res.end('Unauthorized');
       }
-
+      
+      // get the access token to the particle api
+      // this is stored in the aws tokens db in the person's email
       const accessToken = await shared.particle.getAccessToken(jwtPayload.email);
       res.setHeader('Content-Type', 'application/json');
       res.setHeader('X-Content-Type-Options', 'nosniff');
