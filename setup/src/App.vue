@@ -11,6 +11,9 @@
                 <v-toolbar-title>WiFi Setup</v-toolbar-title>
               </v-toolbar>
               <v-layout align-center justify-center row v-show="busy">
+                <p>{{connectionStepText}}</p>
+              </v-layout>
+              <v-layout align-center justify-center row v-show="busy">
                 <loader color="#1976d2" class="my-3"/>
               </v-layout>
               <v-card-text>
@@ -100,7 +103,8 @@ export default {
       notification: false,
       notificationText: '',
       notificationColor: 'info',
-      checkingWifiConfig: false
+      checkingWifiConfig: false,
+      connectionStepText: ''
     };
   },
   computed: {
@@ -137,6 +141,7 @@ export default {
       const network = this.networks[this.selectedNetwork];
       try {
         this.busy = true;
+        this.connectionStepText = 'Configuring device'
         this.deviceID = await sap.deviceInfo().then(res => res.id);
         if (this.claimCode !== "wifireset") {
           await sap.setClaimCode(this.claimCode);
@@ -150,93 +155,79 @@ export default {
         });
         await sap.connect();
 
-        // wait for wifi to have an internet connection (it kicks back to old wifi and is connected)
+        // After sap.connect(), it will automatically disconnect from the DIGIPIGGY wifi network
+        // Then the user's device (laptop, cell phone, etc) will automatically re-connect to their wifi network
+        // Wait until they are back on their network before proceeding.
+        
+        this.connectionStepText = 'Reconnecting to your wifi.'
         let wiFiOnline = await this.checkIfWiFiIsOnline();
-
-        // if we don't have a wifi connection, then bail out of this function. 
-        console.log("wiFiOnline", wiFiOnline)
         if (!wiFiOnline) return;
         
-        console.log("after the wiFiOnline online")
-        // await new Promise((resolve, reject) => {
-        //   console.log("checking if the device is online")
-        //   // TODO don't hardcode access token or product ID into this api call
-        //   console.log("this.deviceID", this.deviceID)
         let deviceOnline = false;
-        axios.put(`https://api.particle.io/v1/products/8466/devices/${this.deviceID}/ping?access_token=5043aee54ba12b3d3968325d3e653fc6eaf1e693`)
+        this.connectionStepText = 'Confirming Digi-Pig connected to network.'
+
+        // TODO: remove access token from URI
+        // TODO: move this to it's own function
+        await axios.put(`https://api.particle.io/v1/products/8466/devices/${this.deviceID}/ping?access_token=5043aee54ba12b3d3968325d3e653fc6eaf1e693`)
         .then(response => {
-          console.log("response", response)
           if (response.data.online) {
-            console.log("congrats, the device is online")
             deviceOnline = true; 
           }
           else {
-            console.log("crap, the device didn't connect. Reconnect to the DigiPig network and try again")
-            this.handleError(response, 'Failed to connect to WiFi network. Please try again.')
+            this.handleError(response, 'Pig failed to connect to WiFi network. Please try again.')
           }
         }).catch(err => {
-          console.log("in the catch")
-          this.handleError(err, 'Failed to ping device. Please try again.')
+          this.handleError(err, 'Failed to ping the pig. Please try again.')
         });
-        // });
 
         if (!deviceOnline) return;
 
-        console.log("about to redirect")
-
-        // await new Promise(resolve =>
-        //   setTimeout(() => {
-        //     resolve();
-        //     if (this.claimCode !== "wifireset") {
-        //       window.location = `${process.env.VUE_APP_WIFI_REDIRECT_URL}/setup#finish`;
-        //     }
-        //     else {
-        //       window.location = `${process.env.VUE_APP_WIFI_REDIRECT_URL}/settings`;
-        //     }
-        //   }, 30000)
-        // );
+        await new Promise(resolve => {
+          this.connectionStepText = 'Connection successful. Time to get Digi.'
+          setTimeout(() => {
+            resolve()
+          }, 5000)
+        })
+        
+        if (this.claimCode !== "wifireset") {
+          window.location = `${process.env.VUE_APP_WIFI_REDIRECT_URL}/setup#finish`;
+        }
+        else {
+          window.location = `${process.env.VUE_APP_WIFI_REDIRECT_URL}/settings`;
+        }
       } catch (err) {
         this.handleError(err, 'Failed to connect to WiFi network');
       } finally {
         this.busy = false;
+        this.connectionStepText = ''
       }
     },
     async checkIfWiFiIsOnline() {
       let attemptsLeft = 4;
-      let attempts = 0;
       let isOnline = false;
       const wait = (delay) => new Promise(resolve => setTimeout(resolve, delay));
 
       while (attemptsLeft > 0 && !isOnline) {
-        console.log("in the while")
-        console.log("attempts left", attemptsLeft)
-        console.log("isOnline", isOnline)
         await axios.get('https://dynamodb.us-east-2.amazonaws.com')
         .then(response => {
-          console.log("in the then")
-          // if successful, return true out of this whole thing
-          if (response.status >= 200 || response.status <= 300) {
-            console.log("successfully pinged dynamo")
-            // return true ???
+          if (response.status >= 200 && response.status <= 300) {
             isOnline = true;
           }
         })
-        .catch((err) => {
-          console.log("in the catch, do nothing... here's the error tho", err)
+        .catch(err => {
+          console.log("error", err)
         })
         if (isOnline) {
-          console.log("in the if isOnline")
+          // TODO: add retry logic into the device ping
+          // wait 5 seconds, this allows the device fully come online.
+          await wait(5000)
           return true;
         }
         else {
-          console.log("in the else")
-          // if unsuccessful, wait 15 seconds, reduce trys by 1, and try again
           await wait(15000);
           attemptsLeft--;
         }
       }
-      // if out of trys, return false
-      console.log(`Tried ${attempts} times, still no internet connection.`)
       this.handleError({}, 'Unable to connect to the internet. Please try again.');
       return isOnline;
     },
