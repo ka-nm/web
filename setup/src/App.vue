@@ -4,7 +4,7 @@
     <v-content>
       <v-container fluid>
         <v-row align="center" justify="center">
-          <v-col :cols="4">
+          <v-col :sm="12" :md="8" :lg="6">
             <v-img :src="require('@/assets/logo.png')" height="128px" contain class="d-block my-4"></v-img>
             <v-card class="elevation-12">
               <v-toolbar dark color="primary">
