@@ -137,10 +137,7 @@ export default {
       const network = this.networks[this.selectedNetwork];
       try {
         this.busy = true;
-
-        console.log("in the function")
         this.deviceID = await sap.deviceInfo().then(res => res.id);
-        console.log("this.deviceID", this.deviceID)
         if (this.claimCode !== "wifireset") {
           await sap.setClaimCode(this.claimCode);
         }
@@ -152,57 +149,59 @@ export default {
           channel: network.channel
         });
         await sap.connect();
-        console.log("after the connect")
 
         // wait for wifi to have an internet connection (it kicks back to old wifi and is connected)
-        let isBackOnline = await this.checkIfOnline();
+        let wiFiOnline = await this.checkIfWiFiIsOnline();
 
         // if we don't have a wifi connection, then bail out of this function. 
-        console.log("isBackOnline", isBackOnline)
-        if (!isBackOnline) return;
+        console.log("wiFiOnline", wiFiOnline)
+        if (!wiFiOnline) return;
         
-        console.log("after the isBackOnline online")
-        await new Promise((resolve, reject) => {
-          console.log("checking if the device is online")
-          // TODO don't hardcode access token or product ID into this api call
-          console.log("this.deviceID", this.deviceID)
-          axios.put(`https://api.particle.io/v1/products/8466/devices/${this.deviceID}/ping?access_token=5043aee54ba12b3d3968325d3e653fc6eaf1e693`)
-          .then(response => {
-            console.log("response", response)
-            if (response.data.online) {
-              console.log("congrats, the device is online")
-              resolve();
-            }
+        console.log("after the wiFiOnline online")
+        // await new Promise((resolve, reject) => {
+        //   console.log("checking if the device is online")
+        //   // TODO don't hardcode access token or product ID into this api call
+        //   console.log("this.deviceID", this.deviceID)
+        let deviceOnline = false;
+        axios.put(`https://api.particle.io/v1/products/8466/devices/${this.deviceID}/ping?access_token=5043aee54ba12b3d3968325d3e653fc6eaf1e693`)
+        .then(response => {
+          console.log("response", response)
+          if (response.data.online) {
+            console.log("congrats, the device is online")
+            deviceOnline = true; 
+          }
+          else {
             console.log("crap, the device didn't connect. Reconnect to the DigiPig network and try again")
             this.handleError(response, 'Failed to connect to WiFi network. Please try again.')
-            reject()
-          }).catch(err => {
-            console.log("in the catch")
-            this.handleError(err, 'Failed to ping device. Please try again.')
-            reject()
-          });
+          }
+        }).catch(err => {
+          console.log("in the catch")
+          this.handleError(err, 'Failed to ping device. Please try again.')
         });
+        // });
+
+        if (!deviceOnline) return;
 
         console.log("about to redirect")
 
-        await new Promise(resolve =>
-          setTimeout(() => {
-            resolve();
-            if (this.claimCode !== "wifireset") {
-              window.location = `${process.env.VUE_APP_WIFI_REDIRECT_URL}/setup#finish`;
-            }
-            else {
-              window.location = `${process.env.VUE_APP_WIFI_REDIRECT_URL}/settings`;
-            }
-          }, 30000)
-        );
+        // await new Promise(resolve =>
+        //   setTimeout(() => {
+        //     resolve();
+        //     if (this.claimCode !== "wifireset") {
+        //       window.location = `${process.env.VUE_APP_WIFI_REDIRECT_URL}/setup#finish`;
+        //     }
+        //     else {
+        //       window.location = `${process.env.VUE_APP_WIFI_REDIRECT_URL}/settings`;
+        //     }
+        //   }, 30000)
+        // );
       } catch (err) {
         this.handleError(err, 'Failed to connect to WiFi network');
       } finally {
         this.busy = false;
       }
     },
-    async checkIfOnline() {
+    async checkIfWiFiIsOnline() {
       let attemptsLeft = 4;
       let attempts = 0;
       let isOnline = false;
