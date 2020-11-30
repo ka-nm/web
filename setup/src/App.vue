@@ -4,7 +4,7 @@
     <v-content>
       <v-container fluid>
         <v-row align="center" justify="center">
-          <v-col :cols="4">
+          <v-col :sm="12" :md="8" :lg="6">
             <v-img :src="require('@/assets/logo.png')" height="128px" contain class="d-block my-4"></v-img>
             <v-card class="elevation-12">
               <v-toolbar dark color="primary">
@@ -30,7 +30,7 @@
                     ripple
                   >
                     <v-list-item-avatar>
-                      <v-icon class="grey lighten-1">{{ wifiStrengthIcon(i) }}</v-icon>
+                      <v-icon class="grey lighten-1">wifi</v-icon>
                     </v-list-item-avatar>
                     <v-list-item-content>
                       <v-list-item-title v-text="network.ssid"></v-list-item-title>
@@ -106,20 +106,22 @@ export default {
     }
   },
   methods: {
-    wifiStrengthIcon(index) {
-      const network = this.networks[index];
-      if (network.rssi <= -90) {
-        return 'signal_wifi_0_bar';
-      } else if (network.rssi > -90 && network.rssi <= -80) {
-        return 'signal_wifi_1_bar';
-      } else if (network.rssi > -80 && network.rssi <= -70) {
-        return 'signal_wifi_2_bar';
-      } else if (network.rssi > -70 && network.rssi <= -60) {
-        return 'signal_wifi_3_bar';
-      }
+    // TODO: import new icon library to use in this function. signal_wifi_#_bar is no longer supported
+    // https://material.io/resources/icons
 
-      return 'signal_wifi_4_bar';
-    },
+    // wifiStrengthIcon(index) {
+    //   const network = this.networks[index];
+    //   if (network.rssi <= -90) {
+    //     return 'signal_wifi_0_bar';
+    //   } else if (network.rssi > -90 && network.rssi <= -80) {
+    //     return 'signal_wifi_1_bar';
+    //   } else if (network.rssi > -80 && network.rssi <= -70) {
+    //     return 'signal_wifi_2_bar';
+    //   } else if (network.rssi > -70 && network.rssi <= -60) {
+    //     return 'signal_wifi_3_bar';
+    //   }
+    //   return 'signal_wifi_4_bar';
+    // },
     async onSelect(index) {
       this.password = null;
       if (this.selectedNetwork === index) {
