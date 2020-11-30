@@ -30,7 +30,7 @@
                     ripple
                   >
                     <v-list-item-avatar>
-                      <v-icon class="grey lighten-1">{{ wifiStrengthIcon(i) }}</v-icon>
+                      <v-icon class="grey lighten-1">wifi</v-icon>
                     </v-list-item-avatar>
                     <v-list-item-content>
                       <v-list-item-title v-text="network.ssid"></v-list-item-title>
@@ -106,20 +106,22 @@ export default {
     }
   },
   methods: {
-    wifiStrengthIcon(index) {
-      const network = this.networks[index];
-      if (network.rssi <= -90) {
-        return 'signal_wifi_0_bar';
-      } else if (network.rssi > -90 && network.rssi <= -80) {
-        return 'signal_wifi_1_bar';
-      } else if (network.rssi > -80 && network.rssi <= -70) {
-        return 'signal_wifi_2_bar';
-      } else if (network.rssi > -70 && network.rssi <= -60) {
-        return 'signal_wifi_3_bar';
-      }
+    // TODO: import new icon library to use in this function. signal_wifi_#_bar is no longer supported
+    // https://material.io/resources/icons
 
-      return 'signal_wifi_4_bar';
-    },
+    // wifiStrengthIcon(index) {
+    //   const network = this.networks[index];
+    //   if (network.rssi <= -90) {
+    //     return 'signal_wifi_0_bar';
+    //   } else if (network.rssi > -90 && network.rssi <= -80) {
+    //     return 'signal_wifi_1_bar';
+    //   } else if (network.rssi > -80 && network.rssi <= -70) {
+    //     return 'signal_wifi_2_bar';
+    //   } else if (network.rssi > -70 && network.rssi <= -60) {
+    //     return 'signal_wifi_3_bar';
+    //   }
+    //   return 'signal_wifi_4_bar';
+    // },
     async onSelect(index) {
       this.password = null;
       if (this.selectedNetwork === index) {
