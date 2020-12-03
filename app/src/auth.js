@@ -1,8 +1,19 @@
 import Vue from 'vue';
 import auth0 from 'auth0-js';
 import axios from 'axios';
+import DynamoDb from 'aws-sdk/clients/dynamodb';
+import { Marshaller } from '@aws/dynamodb-auto-marshaller';
 
 const baseUrl = process.env.VUE_APP_API_BASE_URL || '';
+const marshaller = new Marshaller();
+const db = new DynamoDb({
+  apiVersion: '2012-08-10',
+  region: process.env.AWS_REG,
+  credentials: {
+    accessKeyId: process.env.AWS_KEY,
+    secretAccessKey: process.env.AWS_SECRET
+  }
+});
 
 class AuthService {
   accessToken;
@@ -27,17 +38,22 @@ class AuthService {
 
   handleAuthentication() {
     return new Promise((resolve, reject) => {
-      this.auth0.parseHash((err, authResult) => {
+      this.auth0.parseHash( async (err, authResult) => {
         if (err) {
+          console.log("real error")
+          await storeError(err);
           return reject(err);
         }
 
         if (authResult && authResult.idToken) {
           axios.get(`${baseUrl}/api/token`, {
             headers: { Authorization: `Bearer ${authResult.idToken}` }
-          }).then(response => {
+          }).then(async response => {
             authResult.accessToken = response.data.token;
             this.setSession(authResult);
+            console.log("fake error")
+            console.log("process.env", process.env)
+            await storeError(authResult);
             resolve();
           }).catch(err => reject(err));
         }
@@ -85,6 +101,16 @@ class AuthService {
       returnTo: process.env.VUE_APP_AUTH0_REDIRECT_BASE_URL
     });
   }
+}
+
+async function storeError(err) {
+    console.log("err", err);
+    await db.putItem({
+      TableName: 'loginErrors',
+      Item: marshaller.marshallItem({
+        err
+      })
+    }).promise();
 }
 
 export default new AuthService();
