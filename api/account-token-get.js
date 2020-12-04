@@ -20,7 +20,7 @@ module.exports = async (req, res) => {
         res.statusCode = 404;
         return res.end('Not Found');
       }
-
+      console.log("account-token-get process.env", process.env)
       const particleToken = await shared.particle.getAccessToken();
       const deviceResponse = await axios.get(`${process.env.PARTICLE_PRODUCT_BASE_URL}/devices`, {
         headers: { Authorization: `Bearer ${particleToken}` },

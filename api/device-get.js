@@ -22,6 +22,7 @@ module.exports = async (req, res) => {
         res.statusCode = 404;
         return res.end('Not Found');
       }
+      console.log("device-get process.env", process.env)
 
       res.setHeader('Content-Type', 'application/json');
       res.setHeader('X-Content-Type-Options', 'nosniff');

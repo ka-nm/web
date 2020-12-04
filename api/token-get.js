@@ -16,7 +16,8 @@ module.exports = async (req, res) => {
         res.statusCode = 401;
         return res.end('Unauthorized');
       }
-      
+      console.log("token-get process.env", process.env)
+
       // get the access token to the particle api
       // this is stored in the aws tokens db in the person's email
       const accessToken = await shared.particle.getAccessToken(jwtPayload.email);
