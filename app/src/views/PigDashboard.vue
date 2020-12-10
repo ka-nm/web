@@ -1,10 +1,19 @@
 <template>
   <div>
+    <v-img :src="require('@/assets/logo.png')" height="128px" contain class="d-block my-4"></v-img>
     <v-card class="elevation-12 mb-4">
       <v-toolbar dark color="primary">
-        <v-toolbar-title>New Home</v-toolbar-title>
+        <v-toolbar-title>DigiPiggy Dashboard</v-toolbar-title>
         <v-spacer></v-spacer>
-        <v-btn icon to="settings">
+        <v-btn icon to="/">
+          <v-tooltip top>
+            <template v-slot:activator="{ on }">
+              <v-icon v-on="on">home</v-icon>
+            </template>
+            <span>Home</span>
+          </v-tooltip>
+        </v-btn>
+        <v-btn icon to="pigSettings">
           <v-tooltip top>
             <template v-slot:activator="{ on }">
               <v-icon v-on="on">settings</v-icon>

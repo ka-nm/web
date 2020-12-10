@@ -3,8 +3,9 @@ import Router from 'vue-router';
 import Auth from './auth';
 import Setup from './views/Setup';
 import Callback from './views/Callback';
+import PigDashboard from './views/PigDashboard';
+import PigSettings from './views/PigSettings';
 import Home from './views/Home';
-import Settings from './views/Settings';
 
 Vue.use(Router);
 
@@ -27,13 +28,18 @@ const router = new Router({
       component: Home
     },
     {
-      path: '/settings',
-      name: 'settings',
-      component: Settings
+      path: '/pigDashboard',
+      name: 'pigDashboard',
+      component: PigDashboard
+    },
+    {
+      path: '/pigSettings',
+      name: 'pigSettings',
+      component: PigSettings
     },
     {
       path: '*',
-      redirect: { name: 'home' }
+      redirect: { name: 'pigDashboard' }
     }
   ]
 });

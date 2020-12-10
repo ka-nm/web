@@ -4,7 +4,6 @@
       <v-container fluid >
         <v-layout align-center justify-center>
           <v-flex xs12 sm8 md4>
-            <v-img :src="require('@/assets/logo.png')" height="128px" contain class="d-block my-4"></v-img>
             <transition name="component-fade" mode="out-in">
               <router-view/>
             </transition>
