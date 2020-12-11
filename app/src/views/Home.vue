@@ -27,14 +27,14 @@
         </v-dialog>
       </v-toolbar>
           <v-card-text>Access Stories</v-card-text>
-          <v-card class="ma-2" to="/story"> 
+          <v-card class="mx-12" to="/story"> 
               <v-img
                 :src="require('@/assets/rex&Penny.jpg')"
                 contain
               ></v-img>
           </v-card>
           <v-card-text>Access Your DigiPiggy</v-card-text>
-          <v-card class="ma-2 mb-12" to="/pigdashboard"> 
+          <v-card class="mx-12 mb-4" to="/pigdashboard"> 
               <v-img
                 :src="require('@/assets/logo.png')"
                 contain
@@ -45,54 +45,17 @@
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex';
 import Auth from '../auth';
 
 export default {
-  components: {},
   data() {
     return {
       logoutDialogDisplayed: false,
-      busy: false,
-      deposit: null
     };
   },
-  computed: {
-    ...mapState(['device']),
-    enabledGoals() {
-      return this.device.goals.filter(g => g.enabled);
-    }
-  },
   methods: {
-    ...mapActions(['displayMessage', 'depositIntoGoals']),
-    getGoalName(index) {
-      return this.device.goals[index].name;
-    },
-    getGoalValue(index) {
-      const data = this.enabledGoals[index];
-      return (data.current / data.total) * 100;
-    },
-    getGoalColor(index) {
-      const goals = this.enabledGoals[index];
-      return this.$color(goals.color);
-    },
     onLogout() {
       Auth.logout();
-    },
-    async onDeposit() {
-      if (+this.deposit === 0) {
-        return this.displayMessage({ text: 'Please enter an amount to deposit', color: 'info' });
-      }
-
-      this.busy = true;
-      if (await this.depositIntoGoals(+this.deposit)) {
-        this.deposit = 0;
-        this.displayMessage({ text: 'Deposit successful', color: 'info' });
-      } else {
-        this.displayMessage({ text: 'Deposit failed', color: 'error' });
-      }
-
-      this.busy = false;
     }
   }
 };

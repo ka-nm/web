@@ -7,6 +7,7 @@ import PigDashboard from './views/PigDashboard';
 import PigSettings from './views/PigSettings';
 import Home from './views/Home';
 import Story from './views/Story';
+import Chapter from './views/Chapter';
 
 Vue.use(Router);
 
@@ -42,6 +43,11 @@ const router = new Router({
       path: '/story',
       name: 'story',
       component: Story
+    },
+    {
+      path: '/chapter',
+      name: 'chapter',
+      component: Chapter
     },
     {
       path: '*',
