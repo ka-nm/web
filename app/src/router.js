@@ -45,9 +45,9 @@ const router = new Router({
       component: Story
     },
     {
-      path: '/chapter',
+      path: '/chapter/:title',
       name: 'chapter',
-      component: Chapter
+      component: Chapter,
     },
     {
       path: '*',
