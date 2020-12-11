@@ -1,9 +1,17 @@
 <template>
   <div>
-    <v-card class="elevation-12 mb-4 pb-1">
+    <v-card class="elevation-12 mb-4">
       <v-toolbar dark color="primary">
-        <v-toolbar-title>New Home</v-toolbar-title>
+        <v-toolbar-title>Story Template</v-toolbar-title>
         <v-spacer></v-spacer>
+        <v-btn icon to="/">
+          <v-tooltip top>
+            <template v-slot:activator="{ on }">
+              <v-icon v-on="on">home</v-icon>
+            </template>
+            <span>Home</span>
+          </v-tooltip>
+        </v-btn>
         <v-dialog v-model="logoutDialogDisplayed" max-width="320">
           <template v-slot:activator="{ on }">
             <v-btn icon v-on="on">
@@ -26,20 +34,20 @@
           </v-card>
         </v-dialog>
       </v-toolbar>
+      <v-card-text>
+        <v-container fluid>
           <v-card-text>Access Stories</v-card-text>
-          <v-card class="ma-2" to="/story"> 
-              <v-img
-                :src="require('@/assets/rex&Penny.jpg')"
-                contain
-              ></v-img>
-          </v-card>
-          <v-card-text>Access Your DigiPiggy</v-card-text>
-          <v-card class="ma-2 mb-12" to="/pigdashboard"> 
-              <v-img
-                :src="require('@/assets/logo.png')"
-                contain
-              ></v-img>
-          </v-card>
+          <v-row align="start" justify="center" align-content="center">
+            <v-col>
+             <v-btn icon to="story">
+              <v-card>
+
+              </v-card>
+             </v-btn>
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-card-text>
     </v-card>
   </div>
 </template>
