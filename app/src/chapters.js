@@ -1,14 +1,17 @@
 export default [
         {
-          title: "Introduction 1",
-          thumbnail: "introduction/thumbnail.png",
+          title: "Meet the Piggles",
+          folder: "introduction",
+          thumbnail: "thumbnail.png",
           subtitle: "",
           mediaType: "video",
           length: "01:25",
           pages: []
         },
         {
-          title: "Introduction 2",
+          title: "Chapter 1",
+          folder: "chapter1",
+          thumbnail: "thumbnail.png",
           subtitle: "",
           blurb: "Get to know the Piggles. I this adventure....",
           readTime: [5, 7], 
