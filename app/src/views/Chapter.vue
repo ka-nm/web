@@ -1,9 +1,10 @@
 <template>
  <!--TODO: Throw in an if here to show the video player if the mediaType is video -->
  <!--else show the story-->
+ <v-container>
   <v-card v-if="chapter.title && chapter.mediaType == 'book' " class="red">
     <v-card-title>{{chapter.title}}</v-card-title>
-    <v-img :src="`/chapters/introduction/${currentPage.image}`" height="350" contain class="d-block"></v-img>
+    <v-img :src="`/chapters/${chapter.folder}/${currentPage.image}`" height="350" contain class="d-block"></v-img>
     <v-card-text>
       {{ currentPage.text }}
     </v-card-text>
@@ -13,7 +14,7 @@
         </v-btn>
 
         <v-btn to="/story">
-          <v-icon>mdi-home</v-icon>
+          <v-icon>mdi-library</v-icon>
         </v-btn>
 
         <v-btn @click="nextPage">
@@ -21,7 +22,15 @@
         </v-btn>
       </v-bottom-navigation>
   </v-card>
-  
+  <v-card v-if="chapter.title && chapter.mediaType == 'video' " class="green">
+    <div>
+      <video width="100%" height="100%" controls>
+        <source :src="`/chapters/${chapter.folder}/${chapter.videoName}`" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    </div>
+  </v-card>
+ </v-container>
 </template>
 
 <script>
@@ -38,7 +47,9 @@ export default {
     try {
       const title = this.$route.params.title
       this.chapter = this.$store.state.chapters.find( chap => chap.title == title)
-      this.currentPage = this.chapter.pages[this.currentPageIndex]
+      if (this.chapter.mediaType == 'book') {
+        this.currentPage = this.chapter.pages[this.currentPageIndex]
+      }
     } catch (err) {
       console.error(err);
     }

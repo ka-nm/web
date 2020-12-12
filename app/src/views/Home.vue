@@ -2,7 +2,7 @@
   <div>
     <v-card class="elevation-12 mb-4 pb-1">
       <v-toolbar dark color="primary">
-        <v-toolbar-title>New Home</v-toolbar-title>
+        <v-toolbar-title>Welcome to the Piggles</v-toolbar-title>
         <v-spacer></v-spacer>
         <v-dialog v-model="logoutDialogDisplayed" max-width="320">
           <template v-slot:activator="{ on }">
