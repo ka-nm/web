@@ -1,15 +1,9 @@
 <template>
   <v-app id="app">
     <v-content>
-      <v-container fluid >
-        <v-layout align-center justify-center>
-          <v-flex xs12 sm8 md4>
-            <transition name="component-fade" mode="out-in">
-              <router-view/>
-            </transition>
-          </v-flex>
-        </v-layout>
-      </v-container>
+      <transition name="component-fade" mode="out-in">
+        <router-view/>
+      </transition>
     </v-content>
     <v-snackbar v-model="notification" :multi-line="true" :timeout="3000">
       {{ notificationText }}
