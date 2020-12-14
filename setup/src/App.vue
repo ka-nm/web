@@ -195,7 +195,7 @@ export default {
           window.location = `${process.env.VUE_APP_WIFI_REDIRECT_URL}/setup#finish`;
         }
         else {
-          window.location = `${process.env.VUE_APP_WIFI_REDIRECT_URL}/pigSettings`;
+          window.location = `${process.env.VUE_APP_WIFI_REDIRECT_URL}/settings`;
         }
       } catch (err) {
         this.handleError(err, 'Failed to connect to WiFi network');

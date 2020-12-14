@@ -3,7 +3,6 @@ import Vuex from 'vuex';
 import axios from 'axios';
 import qs from 'qs';
 import Auth from './auth';
-import chapters from './chapters'
 
 const cloneDevice = device => JSON.parse(JSON.stringify(device));
 const coalesce = (total, value) => total > 0 ? (value / total).toFixed(2) : '0.00';
@@ -21,8 +20,7 @@ export default new Vuex.Store({
       deviceId: null,
       deviceCode: null,
       goals: []
-    },
-    chapters
+    }
   },
   mutations: {
     setMessage(state, options) {
