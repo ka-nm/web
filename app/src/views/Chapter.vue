@@ -4,6 +4,7 @@
  <v-container>
   <v-card v-if="chapter.title && chapter.mediaType == 'book' " class="red">
     <v-card-title>{{chapter.title}}</v-card-title>
+     <!--TODO: update v-img to use assets version-->
     <v-img :src="`/chapters/${chapter.folder}/${currentPage.image}`" height="350" contain class="d-block"></v-img>
     <v-card-text>
       {{ currentPage.text }}
@@ -25,7 +26,8 @@
   <v-card v-if="chapter.title && chapter.mediaType == 'video' " class="">
     <div>
       <video width="100%" height="100%" controls>
-        <source :src="`/chapters/${chapter.folder}/${chapter.videoName}`" type="video/mp4">
+        <source :src="require(`@/assets/chapters/${chapter.folder}/${chapter.videoName}`)" type="video/mp4">
+        <!-- <source :src="`/chapters/${chapter.folder}/${chapter.videoName}`" type="video/mp4"> -->
         Your browser does not support the video tag.
       </video>
     </div>
