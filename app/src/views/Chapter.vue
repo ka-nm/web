@@ -25,7 +25,8 @@
   <v-card v-if="chapter.title && chapter.mediaType == 'video' " class="">
     <div>
       <video width="100%" height="100%" controls>
-        <source :src="`/chapters/${chapter.folder}/${chapter.videoName}`" type="video/mp4">
+        <source :src="require(`@/assets/chapters/${chapter.folder}/${chapter.videoName}`)" type="video/mp4">
+        <!-- <source :src="`/chapters/${chapter.folder}/${chapter.videoName}`" type="video/mp4"> -->
         Your browser does not support the video tag.
       </video>
     </div>
