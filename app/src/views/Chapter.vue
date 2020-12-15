@@ -57,7 +57,7 @@ export default {
         this.currentPage = this.chapter.pages[this.currentPageIndex]
       }
       if (this.chapter.mediaType == 'video') {
-        this.videoSource = require(`@/assets/chapters/${this.chapter.folder}/${this.chapter.videoName}`)
+        this.videoSource = 'https://bpk-endless.s3.us-east-1.amazonaws.com/ReBirth.mp4'
       }
     } catch (err) {
       console.error(err);
