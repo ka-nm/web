@@ -57,7 +57,7 @@ export default {
         this.currentPage = this.chapter.pages[this.currentPageIndex]
       }
       if (this.chapter.mediaType == 'video') {
-        this.videoSource = `/chapters/${this.chapter.folder}/${this.chapter.videoName}`
+        this.videoSource = require(`@/assets/chapters/${this.chapter.folder}/${this.chapter.videoName}`)
       }
     } catch (err) {
       console.error(err);
