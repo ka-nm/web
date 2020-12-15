@@ -27,7 +27,7 @@
       <video 
         width="100%"
         height="100%"
-        :src="require(`@/assets/chapters/${chapter.folder}/${chapter.videoName}`)"
+        :src="videoSource"
         controls>
         <!-- <source  type="video/mp4"> -->
         <!-- <source :src="`/chapters/${chapter.folder}/${chapter.videoName}`" type="video/mp4"> -->
@@ -46,6 +46,7 @@ export default {
       chapter: {},
       currentPage: {},
       currentPageIndex: 0,
+      videoSource: ''
     }
   },
   async mounted() {
@@ -54,6 +55,9 @@ export default {
       this.chapter = this.$store.state.chapters.find( chap => chap.title == title)
       if (this.chapter.mediaType == 'book') {
         this.currentPage = this.chapter.pages[this.currentPageIndex]
+      }
+      if (this.chapter.mediaType == 'video') {
+        this.videoSource = `/chapters/${this.chapter.folder}/${this.chapter.videoName}`
       }
     } catch (err) {
       console.error(err);
