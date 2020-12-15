@@ -36,9 +36,7 @@
                     width="100"
                     :to="`/chapter/${n.title}`"
                   >
-                    <!-- <v-img :src="require(`@/assets/chapters/${n.folder}/${n.thumbnail}`)"  contain class="d-block"></v-img> -->
-                    <v-img :src="require(`@/assets/chapters/${n.folder}/${n.thumbnail}`)"  contain class="d-block"></v-img>
-                    <!-- <v-img :src="`/chapters/${n.folder}/${n.thumbnail}`"  contain class="d-block"></v-img> -->
+                    <v-img :src="`/chapters/${n.folder}/${n.thumbnail}`"  contain class="d-block"></v-img>
                     <v-card-text class="pa-2">
                       <div>{{n.title}}</div>
                     </v-card-text>
