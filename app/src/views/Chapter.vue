@@ -57,7 +57,8 @@ export default {
         this.currentPage = this.chapter.pages[this.currentPageIndex]
       }
       if (this.chapter.mediaType == 'video') {
-        this.videoSource = 'https://bpk-endless.s3.us-east-1.amazonaws.com/ReBirth.mp4'
+        // TODO: change the prop from videoName to videoSource or videoURL
+        this.videoSource = this.chapter.videoName
       }
     } catch (err) {
       console.error(err);

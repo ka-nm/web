@@ -4,7 +4,7 @@ export default [
           folder: "introduction",
           thumbnail: "thumbnail.png",
           mediaType: "video",
-          videoName: "introduction.mp4",
+          videoName: "https://s3.amazonaws.com/pigglesfamily.com-videos-prod/introduction.mp4",
           length: "02:51",
           released: true
         },
