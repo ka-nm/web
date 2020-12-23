@@ -1,14 +1,63 @@
 <template>
- <!--TODO: Throw in an if here to show the video player if the mediaType is video -->
- <!--else show the story-->
- <v-container>
-  <v-card v-if="chapter.title && chapter.mediaType == 'book' " class="red">
-    <v-card-title>{{chapter.title}}</v-card-title>
-    <v-img :src="`/chapters/${chapter.folder}/${currentPage.image}`" height="350" contain class="d-block"></v-img>
-    <v-card-text>
-      {{ currentPage.text }}
-    </v-card-text>
-    <v-bottom-navigation >
+ <v-container class="fill-height justify-center">
+  <v-card 
+    v-if="chapter.title && chapter.mediaType == 'book'" 
+    class=""
+    width="100%"
+  >
+    <v-sheet v-if="currentPageIndex == -1">
+      <v-card-title class="justify-center">{{chapter.title}} Questions</v-card-title>
+      <v-divider></v-divider>
+      <p class="text-h4 font-weight-medium pl-3 pt-5">
+        Questions for Kids
+      </p>
+      <v-card-text 
+        class="text-body-2 font-weight-regular pl-6" 
+        v-for="question in chapter.questions.kids"
+        :key="question"
+      >
+        🐷 {{question}}
+      </v-card-text>
+      <p class="text-h4 font-weight-medium pl-3 pt-5">
+        Questions for Parents
+      </p>
+      <v-card-text 
+        class="text-body-2 font-weight-regular pl-6" 
+        v-for="question in chapter.questions.parents"
+        :key="question"
+      >
+        🐷 {{question}}
+      </v-card-text>
+      <v-sheet class="text-center my-7 px-2">
+        <v-btn color="primary" @click="reRoute">
+          {{chapter.cta.btnText}}
+        </v-btn>
+      </v-sheet>
+      <v-bottom-navigation >
+        <v-btn @click="previousPage">
+          <v-icon>mdi-arrow-left</v-icon>
+        </v-btn>
+        <v-btn to="/story">
+          <v-icon>mdi-library</v-icon>
+        </v-btn>
+        <v-btn @click="nextPage" :disabled=true>
+          <v-icon>mdi-arrow-right</v-icon>
+        </v-btn>
+      </v-bottom-navigation>
+    </v-sheet>
+    <v-sheet v-else>
+      <v-card-title class="justify-center ">{{chapter.title}}</v-card-title>
+      <v-divider></v-divider>
+      <v-img 
+        :src="require(`@/assets/chapters/${chapter.folder}/${currentPage.image}`)"
+        aspect-ratio="1.3"
+        contain
+        class="d-block"
+      ></v-img>
+      <v-card-text >
+        {{ currentPage.text }}
+      </v-card-text>
+      <v-bottom-navigation >
         <v-btn @click="previousPage" :disabled="this.currentPageIndex <= 0">
           <v-icon>mdi-arrow-left</v-icon>
         </v-btn>
@@ -21,6 +70,7 @@
           <v-icon>mdi-arrow-right</v-icon>
         </v-btn>
       </v-bottom-navigation>
+    </v-sheet>
   </v-card>
   <v-card v-if="chapter.title && chapter.mediaType == 'video' " class="">
     <div>
@@ -66,7 +116,7 @@ export default {
   },
   methods: {
     nextPage() {
-      if (this.currentPageIndex < this.chapter.pages.length){
+      if (this.currentPageIndex < this.chapter.pages.length - 1){
         this.currentPageIndex = this.currentPageIndex + 1;
         this.currentPage = this.chapter.pages[this.currentPageIndex];
       }
@@ -77,10 +127,17 @@ export default {
       }
     },
     previousPage() {
-      if (this.currentPageIndex < this.chapter.pages.length){
+      if (this.currentPageIndex == -1) {
+        this.currentPageIndex = this.chapter.pages.length - 1;
+        this.currentPage = this.chapter.pages[this.currentPageIndex];
+      }
+      else if (this.currentPageIndex < this.chapter.pages.length){
         this.currentPageIndex = this.currentPageIndex - 1;
         this.currentPage = this.chapter.pages[this.currentPageIndex];
       }
+    },
+    reRoute() {
+      this.$router.push(`/${this.chapter.cta.route}`)
     }
   }
 };
