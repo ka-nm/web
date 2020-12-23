@@ -1,11 +1,15 @@
 <template>
  <!--TODO: Throw in an if here to show the video player if the mediaType is video -->
  <!--else show the story-->
- <v-container class="fill-height green justify-center">
-  <v-card v-if="chapter.title && chapter.mediaType == 'book' " class="red">
+ <v-container class="fill-height justify-center">
+  <v-card 
+    v-if="chapter.title && chapter.mediaType == 'book'" 
+    class=""
+    width="100%"
+  >
     <v-sheet v-if="currentPageIndex == -1">
-      <v-card-title class="justify-center purple ">{{chapter.title}} Questions</v-card-title>
-      <p class="blue text-h4 font-weight-medium pl-3">
+      <v-card-title class="justify-center">{{chapter.title}} Questions</v-card-title>
+      <p class="text-h4 font-weight-medium pl-3">
         Questions for Kids
       </p>
       <v-card-text 
@@ -15,7 +19,7 @@
       >
         {{question}}
       </v-card-text>
-      <p class="blue text-h4 font-weight-medium pl-3">
+      <p class="text-h4 font-weight-medium pl-3">
         Questions for Parents
       </p>
       <v-card-text 
@@ -34,25 +38,23 @@
         <v-btn @click="previousPage">
           <v-icon>mdi-arrow-left</v-icon>
         </v-btn>
-
         <v-btn to="/story">
           <v-icon>mdi-library</v-icon>
         </v-btn>
-
         <v-btn @click="nextPage" :disabled=true>
           <v-icon>mdi-arrow-right</v-icon>
         </v-btn>
       </v-bottom-navigation>
     </v-sheet>
     <v-sheet v-else>
-      <v-card-title class="justify-center purple ">{{chapter.title}}</v-card-title>
+      <v-card-title class="justify-center ">{{chapter.title}}</v-card-title>
       <v-img 
         :src="require(`@/assets/chapters/${chapter.folder}/${currentPage.image}`)"
         aspect-ratio="1.3"
         contain
         class="d-block"
       ></v-img>
-      <v-card-text class="blue">
+      <v-card-text >
         {{ currentPage.text }}
       </v-card-text>
       <v-bottom-navigation >
