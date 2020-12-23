@@ -15,10 +15,10 @@ export default [
           blurb: "Get to know the Piggles. I this adventure....",
           readTime: [5, 7],
           mediaType: "book",
-          released: false,
+          released: true,
           pages: [
             {
-              image: "001-Kitchen Enter.png",
+              image: "001-KitchenEnter.jpg",
               text: "The kitchen gleamed and glowed with shiny counters, and what seemed like a million drawers and cabinets."
             },
             {

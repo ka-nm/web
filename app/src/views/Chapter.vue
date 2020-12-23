@@ -4,7 +4,7 @@
  <v-container>
   <v-card v-if="chapter.title && chapter.mediaType == 'book' " class="red">
     <v-card-title>{{chapter.title}}</v-card-title>
-    <v-img :src="`/chapters/${chapter.folder}/${currentPage.image}`" height="350" contain class="d-block"></v-img>
+    <v-img :src="require(`@/assets/chapters/${chapter.folder}/${currentPage.image}`)" height="350" contain class="d-block"></v-img>
     <v-card-text>
       {{ currentPage.text }}
     </v-card-text>
