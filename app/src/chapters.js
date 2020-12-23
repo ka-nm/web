@@ -31,7 +31,7 @@ export default [
             },
             {
               image: "004-MomSearchCorner.png",
-              text: "\"Mom, will you please look for clues on that corner of the kitchen?\", said Rex. \"Sure, Rex\", Mama replied."
+              text: "\"Mom, will you please look for clues in that corner of the kitchen?\", said Rex. \"Sure, Rex\", Mama replied."
             },
             {
               image: "005-DadSearchCabinets.png",
