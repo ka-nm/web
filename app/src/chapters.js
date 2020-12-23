@@ -124,14 +124,18 @@ export default [
           ],
           questions: {
             kids: [
-              "Question 1 for the kids",
-              "Question 2 for the kids"
+              "What would you say a goal is?",
+              "What's something really interesting you'd like to try or learn about?",
+              "How could you make it a goal that you can reach?"
             ],
             parents: [
-              "Question 1 for the parents",
-              "Question 2 for the parents"
-            ],
-            links: "pigSettings"
+              "What's one goal you've had and reached?",
+              "Has there ever been a goal you've tried to do, but stopped?"
+            ]
+          },
+          cta: {
+            route: "pigSettings",
+            btnText: "Update goals on your Digi Piggy"
           }
         },
         {
