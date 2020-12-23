@@ -1,6 +1,4 @@
 <template>
- <!--TODO: Throw in an if here to show the video player if the mediaType is video -->
- <!--else show the story-->
  <v-container class="fill-height justify-center">
   <v-card 
     v-if="chapter.title && chapter.mediaType == 'book'" 
@@ -9,27 +7,28 @@
   >
     <v-sheet v-if="currentPageIndex == -1">
       <v-card-title class="justify-center">{{chapter.title}} Questions</v-card-title>
-      <p class="text-h4 font-weight-medium pl-3">
+      <v-divider></v-divider>
+      <p class="text-h4 font-weight-medium pl-3 pt-5">
         Questions for Kids
       </p>
       <v-card-text 
-        class="text-body-2 font-weight-regular" 
+        class="text-body-2 font-weight-regular pl-6" 
         v-for="question in chapter.questions.kids"
         :key="question"
       >
-        {{question}}
+        🐷 {{question}}
       </v-card-text>
-      <p class="text-h4 font-weight-medium pl-3">
+      <p class="text-h4 font-weight-medium pl-3 pt-5">
         Questions for Parents
       </p>
       <v-card-text 
-        class="text-body-2 font-weight-regular" 
+        class="text-body-2 font-weight-regular pl-6" 
         v-for="question in chapter.questions.parents"
         :key="question"
       >
-        {{question}}
+        🐷 {{question}}
       </v-card-text>
-      <v-sheet class="text-center">
+      <v-sheet class="text-center my-7 px-2">
         <v-btn color="primary" @click="reRoute">
           {{chapter.cta.btnText}}
         </v-btn>
@@ -48,6 +47,7 @@
     </v-sheet>
     <v-sheet v-else>
       <v-card-title class="justify-center ">{{chapter.title}}</v-card-title>
+      <v-divider></v-divider>
       <v-img 
         :src="require(`@/assets/chapters/${chapter.folder}/${currentPage.image}`)"
         aspect-ratio="1.3"
