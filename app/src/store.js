@@ -1,12 +1,18 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import axios from 'axios';
+import https from 'https';
 import qs from 'qs';
 import Auth from './auth';
 import chapters from './chapters'
 
 const cloneDevice = device => JSON.parse(JSON.stringify(device));
 const coalesce = (total, value) => total > 0 ? (value / total).toFixed(2) : '0.00';
+
+const httpsAgent = new https.Agent({
+  maxVersion: "TLSv1.3",
+  minVersion: "TLSv1.2"
+});
 
 Vue.use(Vuex);
 
@@ -58,7 +64,7 @@ export default new Vuex.Store({
       try {
         const response = await axios.get(`${state.baseUrl}/api/device/${deviceId}`, {
           headers: { Authorization: `Bearer ${Auth.idToken}` }
-        });
+        }, httpsAgent);
 
         Vue.ls.set('device', response.data);
         commit('setDevice', response.data);
@@ -99,7 +105,7 @@ export default new Vuex.Store({
       try {
         await axios.put(`${state.baseUrl}/api/device/${state.device.deviceId}`, device, {
           headers: { Authorization: `Bearer ${Auth.idToken}` }
-        });
+        }, httpsAgent);
 
       } catch (err) {
         console.error(err);
@@ -116,7 +122,7 @@ export default new Vuex.Store({
           arg: ''
         }), {
           headers: { Authorization: `Bearer ${Auth.accessToken}` }
-        });
+        }, httpsAgent);
 
       if (!response.data.connected || response.data.return_value !== 0) {
         return false;
@@ -134,7 +140,7 @@ export default new Vuex.Store({
       try {
         await axios.put(`${state.baseUrl}/api/device/${state.device.deviceId}`, updatedDevice, {
           headers: { Authorization: `Bearer ${Auth.idToken}` }
-        });
+        }, httpsAgent);
       } catch (err) {
         console.error(err);
         return false;
@@ -149,7 +155,7 @@ export default new Vuex.Store({
             arg: toggles.map(t => t ? 1 : 0).join('|')
           }), {
             headers: { Authorization: `Bearer ${Auth.accessToken}` }
-          });
+          }, httpsAgent);
 
         if (!response.data.connected || response.data.return_value !== 0) {
           return false;
@@ -172,7 +178,7 @@ export default new Vuex.Store({
             arg: values.map(v => `${coalesce(v.total, v.current)},${coalesce(v.total, v.promise)}`).join('|')
           }), {
             headers: { Authorization: `Bearer ${Auth.accessToken}` }
-          });
+          }, httpsAgent);
 
         if (!response.data.connected || response.data.return_value !== 0) {
           return false;
@@ -200,7 +206,7 @@ export default new Vuex.Store({
             arg: colors.join('|')
           }), {
             headers: { Authorization: `Bearer ${Auth.accessToken}` }
-          });
+          }, httpsAgent);
 
         if (!response.data.connected || response.data.return_value !== 0) {
           return false;
@@ -267,7 +273,7 @@ export default new Vuex.Store({
       try {
         await axios.put(`${state.baseUrl}/api/device/${state.device.deviceId}`, updatedDevice, {
           headers: { Authorization: `Bearer ${Auth.idToken}` }
-        });
+        }, httpsAgent);
       } catch (err) {
         console.error(err);
         return false;
@@ -362,7 +368,7 @@ export default new Vuex.Store({
         const response = await axios.post(`https://api.particle.io/v1/devices/${state.device.deviceId}/piggysleep`,
             {arg: payload}, {
               headers: { Authorization: `Bearer ${Auth.accessToken}` }
-            });
+            }, httpsAgent);
 
         if (!response.data.connected || response.data.return_value !== 0) {
           return false;

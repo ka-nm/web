@@ -1,8 +1,14 @@
 import Vue from 'vue';
 import auth0 from 'auth0-js';
 import axios from 'axios';
+import https from 'https';
 
 const baseUrl = process.env.VUE_APP_API_BASE_URL || '';
+
+const httpsAgent = new https.Agent({
+  maxVersion: "TLSv1.3",
+  minVersion: "TLSv1.2"
+});
 
 class AuthService {
   accessToken;
@@ -35,7 +41,8 @@ class AuthService {
         if (authResult && authResult.idToken) {
           axios.get(`${baseUrl}/api/token`, {
             headers: { Authorization: `Bearer ${authResult.idToken}` }
-          }).then(response => {
+          },httpsAgent
+          ).then(response => {
             authResult.accessToken = response.data.token;
             this.setSession(authResult);
             resolve();
